@@ -3,7 +3,6 @@
 
 # In[1]:
 
-import numpy as np
 import cv2
 import csv
 
@@ -25,8 +24,8 @@ def scale_bb(x, y, w, h, max_x, max_y, scale):
     return [
             int(x - w * (scale - 1)/2), 
             int(y - h * (scale - 1)/2), 
-            int(w * (scale)),
-            int(h * (scale))
+            int(w * scale),
+            int(h * scale)
             ]
 
 
@@ -42,8 +41,8 @@ def have_intersection(bb1, bb2):
     
     # check if two bounding boxes have an intersection
     
-    return not (bb1[0] + bb1[3] < bb2[0] 
-                or bb2[0] + bb2[3] < bb1[0] 
+    return not (bb1[0] + bb1[2] < bb2[0]
+                or bb2[0] + bb2[2] < bb1[0]
                 or bb1[1] + bb1[3] < bb2[1] 
                 or bb2[1] + bb2[3] < bb1[1])
 
@@ -55,7 +54,8 @@ def are_close(bb1, bb2):
     if abs(bb1[2]*bb1[3] - bb2[2]*bb2[3]) > max(bb1[2]*bb1[3], bb2[2]*bb2[3]) / 4:
         return False
     
-    return (abs(bb1[0] + bb1[2] / 2 - bb2[0] - bb2[2] / 2) < bb1[2] / 2) and             (abs(bb1[1] + bb1[3] / 2 - bb2[1] - bb2[3] / 2) <  bb1[3] / 2)
+    return (abs(bb1[0] + bb1[2] / 2 - bb2[0] - bb2[2] / 2) < bb1[2] / 2) and \
+           (abs(bb1[1] + bb1[3] / 2 - bb2[1] - bb2[3] / 2) <  bb1[3] / 2)
 
 
 """
@@ -92,8 +92,8 @@ def preprocess_bbs(bbs, timeout=200, im_width=800, im_height=400):
                 found = 0
                 intersect = 0
                 for prev_id in new_faces[frame - 1]:          
-                    if (have_intersection(new_faces[frame - 1][prev_id]['coords'], 
-                                          faces[frame][bb]['coords'])):
+                    if have_intersection(new_faces[frame - 1][prev_id]['coords'],
+                                         faces[frame][bb]['coords']):
                         intersect = 1
                         
                     if new_faces[frame - 1][prev_id]['timeout'] > 0:
@@ -121,8 +121,8 @@ Section of reading, drawing and writing
 """
 
 def write_cropped_image_by_bb(folder_path, frame_num, person_id, img, bb):
-    cv2.imwrite(folder_path +  "/frame%dperson%d.jpg" % (frame_num, person_id), 
-                img[bb[1] : bb[1] + bb[3], bb[0] : bb[0] + bb[2]]);
+    cv2.imwrite(folder_path + "/frame%dperson%d.jpg" % (frame_num, person_id),
+                img[bb[1] : bb[1] + bb[3], bb[0] : bb[0] + bb[2]])
 
 
 def write_video(input_file, frames, output_file):
@@ -207,19 +207,19 @@ def video_to_faces(folder_path, input_video, frames_num, detector):
     while cur_frame < frames_num and ret:
         ret, frame = vidFile.read() 
         for person_id in faces[cur_frame]:
-            write_cropped_image_by_bb(folder_path, cur_frame, person_id, frame, faces[cur_frame][person_id]['coords'])
+            write_cropped_image_by_bb(folder_path, cur_frame, person_id, frame,
+                                      faces[cur_frame][person_id]['coords'])
         cur_frame += 1
     
     return
 
 
-# In[3]:
-
 def extract_people(video_file, visualize=False, frames_limit=100):
     face_cascade = cv2.CascadeClassifier('./cv_haar_cascades/haarcascade_frontalface_default.xml')
     
     if visualize:
-        write_video(video_file, video_to_frames_dict(video_file, frames_limit, detector=face_cascade), 'video.avi')
+        write_video(video_file, video_to_frames_dict(video_file, frames_limit,
+                                                     detector=face_cascade), 'video.avi')
     
     video_to_faces('./faces', video_file, frames_limit, face_cascade)
 
