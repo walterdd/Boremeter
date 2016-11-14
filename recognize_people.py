@@ -45,6 +45,7 @@ def recognize_people():
     detected_faces = read_data('faces.csv')
 
     for i in detected_faces.index:
+        print i, ' of ', detected_faces.shape[0]
         input_image = caffe.io.load_image('./faces/' +
                                           make_im_name(detected_faces['frame'][i], detected_faces['person_id'][i]))
         detected_faces['age'][i] = age_net.predict([input_image])[0].argmax()

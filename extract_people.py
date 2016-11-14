@@ -1,13 +1,5 @@
-
-# coding: utf-8
-
-# In[1]:
-
 import cv2
 import csv
-
-
-# In[2]:
 
 # bb = bounding box
 
