@@ -2,4 +2,4 @@
 *.ipynb
 *~
 .gitignore
-.ipynb_checkpoints/
+.ipynb_checkpoints/*
