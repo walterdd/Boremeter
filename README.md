@@ -1,6 +1,6 @@
 # Video-based Monitoring of Audience Concentration
 
-<img src="https://github.com/walterdd/Auditory_tracking/blob/master/dogg.jpg" width="112">
+<img src="https://github.com/walterdd/Auditory_tracking/blob/master/dogg.jpg" width="224">
 
 to run use
 `python main.py video_filepath`
