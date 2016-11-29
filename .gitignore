@@ -1,5 +1,0 @@
-*.caffemodel
-*.ipynb
-*~
-.gitignore
-.ipynb_checkpoints/*
