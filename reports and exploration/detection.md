@@ -40,6 +40,8 @@ __________________
 
 Другие ссылки:
 
+http://jiansun.org/papers/ECCV14_JointCascade.pdf - детектор
+
 http://markusmathias.bitbucket.org/2014_eccv_face_detection/ - плюсы, матлаб хорошо детектит 
 
 https://github.com/ShiqiYu/libfacedetection - библиотека непонятно на чем, но много лойсов
