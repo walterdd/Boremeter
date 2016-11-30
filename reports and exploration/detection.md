@@ -40,7 +40,7 @@ __________________
 
 Другие ссылки:
 
-https://github.com/menpo/menpodetect/ - питон, поверх длиб и опенсв
+https://github.com/menpo/menpodetect/ - питон, поверх длиб, headhunter и опенсв
 
 http://jiansun.org/papers/ECCV14_JointCascade.pdf - детектор
 
