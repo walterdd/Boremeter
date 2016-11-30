@@ -2,10 +2,14 @@
 
 <img src="https://github.com/walterdd/Auditory_tracking/blob/master/dogg.jpg" width="224">
 
-to run use
-`python main.py video_filepath`
+### This project is aimed to extracting audience socio-demographic characteristics and tracking viewers' concentration during  lectures or presentations.
 
-Pretrained nets:
+[People tracking example video](https://www.youtube.com/watch?v=LFJhAiqAA3c)
+
+
+
+Pretrained caffe nets links for extrating socio-demographic characteristics:
+
 [dex_imdb_wiki.caffemodel](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/dex_imdb_wiki.caffemodel)
+
 [gender.caffemodel](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/gender.caffemodel)
-[haarcascade_frontalface_alt2.xml](https://drive.google.com/drive/folders/0B2-043T7mytcbmhyTjhGOHJlMGs)
