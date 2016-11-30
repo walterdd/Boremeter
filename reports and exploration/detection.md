@@ -36,10 +36,14 @@ HOG Cascade detector:
 - маленький рекол
 
 
+__________________
 
-
-
-
+Другие ссылки:
+http://markusmathias.bitbucket.org/2014_eccv_face_detection/ - плюсы, матлаб хорошо детектит 
+https://github.com/ShiqiYu/libfacedetection - библиотека непонятно на чем, но много лойсов
+https://github.com/TadasBaltrusaitis/OpenFace - плюсы, детект и анализ
+https://github.com/RiweiChen/DeepFace - дичайше крутая, но долгая штука для анализа (caffe, python)
+https://bitbucket.org/rodrigob/doppia - плюсы, говорят, хорошо детектят
 
 
 
