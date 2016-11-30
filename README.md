@@ -4,7 +4,7 @@
 
 This project is aimed to extracting audience socio-demographic characteristics and tracking its concentration during the lecture or prssentation.
 
-[![Alt text for your video](https://www.youtube.com/watch?v=LFJhAiqAA3c/1.jpg)](https://www.youtube.com/watch?v=LFJhAiqAA3c)
+[![Alt text for your video](https://www.youtube.com/watch?v=LFJhAiqAA3c/0.jpg)](https://www.youtube.com/watch?v=LFJhAiqAA3c)
 
 
 Pretrained caffe nets links for extrating socio-demographic characteristics:
