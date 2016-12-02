@@ -40,6 +40,12 @@ __________________
 
 Другие ссылки:
 
+https://github.com/menpo/menpodetect/ - питон, поверх длиб, headhunter и опенсв
+
+https://media.readthedocs.org/pdf/menpodetect/latest/menpodetect.pdf - туториал к предыдущему
+
+http://jiansun.org/papers/ECCV14_JointCascade.pdf - детектор
+
 http://markusmathias.bitbucket.org/2014_eccv_face_detection/ - плюсы, матлаб хорошо детектит 
 
 https://github.com/ShiqiYu/libfacedetection - библиотека непонятно на чем, но много лойсов
@@ -50,6 +56,11 @@ https://github.com/RiweiChen/DeepFace - дичайше крутая, но дол
 
 https://bitbucket.org/rodrigob/doppia - плюсы, говорят, хорошо детектят
 
+_______________
 
+
+#### Выводы:
+
+Попробовать https://github.com/menpo/menpodetect/
 
 
