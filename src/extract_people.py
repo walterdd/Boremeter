@@ -27,7 +27,7 @@ def draw_rect(img, bb):
 def draw_faces_bbs(img, faces_bbs):
     
     for face_id in faces_bbs:
-        (x,y,w,h) = faces_bbs[face_id]['coords']
+        (x,y,w,h) = faces_bbs[face_id]
         cv2.putText(img, str(face_id), (x, y), 1, 1, (0,0,255), 2, cv2.LINE_AA)
         img = draw_rect(img, scale_bb(x, y, w, h, 1))
     
@@ -49,7 +49,7 @@ def visualize_bbs(frames, output_file='visual.avi', fps=25.0):
     return 
 
 def frame_to_faces(frame, frame_num, folder_path='./cropped'):
-    
+    pass
 
 def save_cropped_faces(frames, folder_path='./cropped'):
     for frame_num in frames:
@@ -60,6 +60,12 @@ def save_cropped_faces(frames, folder_path='./cropped'):
                         img[bb[1] : bb[1] + bb[3], bb[0] : bb[0] + bb[2]])
     return 
 
+def save_cropped_faces_one_frame(img, frame_num, frame_bbs, folder_path='./cropped'):
+    for person_id in frame_bbs:
+        bb = frame_bbs[person_id]
+        cv2.imwrite(folder_path +  "/frame%dperson%d.jpg" % (frame_num, person_id), 
+                    img[bb[1] : bb[1] + bb[3], bb[0] : bb[0] + bb[2]])
+    return 
 
 def extract_whole_data(video_file_path, visualize=False, faces_folder='cropped'):
 
@@ -73,21 +79,106 @@ def extract_whole_data(video_file_path, visualize=False, faces_folder='cropped')
 
     return
 
-def extract_people_from_video(video_file_path, visualize=False, faces_folder='cropped'):
+def fast_extract(video_file_path, visualize=False, faces_folder='cropped', frames_limit=100, det_step=10):
     input_video = cv2.VideoCapture(video_file_path)
 
-    ret, cur_frame_img = input_video.read() 
-    cur_frame_num = 1    
+    csvfile =  open('faces.csv', 'wb')
+    writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
+    writer.writerow(['frame', 'person_id', 'x', 'y', 'w', 'h'])
+
+    initial_timeout = 400
+
+    ret, frame = input_video.read() 
+    cur_frame_num = 0
+    prev_faces = {}
+    cur_faces = {}
+
+    max_id = 0
+
+    timeouts = {}
+
+    if visualize:
+        height, width = frame.shape[0], frame.shape[1]
+        fourcc = cv2.VideoWriter_fourcc(*'XVID')
+        
+        output_video = cv2.VideoWriter('vis.avi', fourcc, 25, (width, height))
 
     while cur_frame_num < frames_limit and ret:
+
+        while cur_frame_num % det_step != 0:
+            ret, frame = input_video.read() 
+            cur_frame_num += 1
+
+        if not ret:
+            break
+
+        cur_faces = {}
+
+        if cur_frame_num % det_step == 0:
+            found_bbs = detect_faces(frame)
+
+            for bb in found_bbs:
+                cur_faces[max_id] = bb
+                timeouts[max_id] = initial_timeout
+                max_id += 1
+
+        tmp_faces = {}
+        faces_to_delete = []
+
+        for cur_id in cur_faces:
+            found = 0
+            intersect = 0
+            for prev_id in prev_faces:      
+                if have_intersection(prev_faces[prev_id], cur_faces[cur_id]):
+                    intersect = 1
+                    faces_to_delete.append(cur_id)
+
+                if timeouts[prev_id] > 0:
+                    if not found and are_close(prev_faces[prev_id], cur_faces[cur_id]):
+                        tmp_faces[prev_id] = prev_faces[prev_id]
+                        timeouts[prev_id] = initial_timeout
+                        found = 1
+                        faces_to_delete.append(cur_id)
+
+        for d in faces_to_delete:
+            cur_faces.pop(d, None)
+
+        for tmp in tmp_faces:
+            cur_faces[tmp] = tmp_faces[tmp]
+
+        
+
+        for prev_id in prev_faces:
+            if timeouts[prev_id] > 0:
+                timeouts[prev_id] -= 1
+                cur_faces[prev_id] = prev_faces[prev_id].copy()
+
+
+        save_cropped_faces_one_frame(frame, cur_frame_num, cur_faces)
+
+        for person_id in cur_faces:
+                x, y, w, h = cur_faces[person_id]
+                writer.writerow([cur_frame_num, person_id, x, y, w, h])
+
+        if visualize:
+            output_video.write(draw_faces_bbs(frame, cur_faces))
+
+        prev_faces = cur_faces.copy()
+
+        cur_frame_num += 1
+
         ret, frame = input_video.read() 
 
-        if cur_frame % detection_step == 0:
-            frames[cur_frame][1] = detect_faces(frame)
-
-        else:
-            frames[cur_frame][1] = np.array([])
-
-        cur_frame += 1
     
-    return frames
+    csvfile.close()
+    
+    if visualize:
+        output_video.release()
+
+def only_read(file, limit):
+    input_video = cv2.VideoCapture(file)
+    ret, frame = input_video.read() 
+    cn = 0
+    while cn < limit and ret:
+        ret, frame = input_video.read() 
+        cn += 1

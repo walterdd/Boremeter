@@ -43,17 +43,19 @@ def read_data(detected_file='faces.csv'):
     detected_faces['interest'] = np.zeros(detected_faces.shape[0])
     return detected_faces
 
-def recognize_people(frames_limit=10000000, step=125):
+def recognize_people(frames_limit=10000000, step=30):
     gender_list = ['Female', 'Male']
     age_net = load_nets('age')
 
     detected_faces = read_data('faces.csv')
 
+    capture_step = np.unique(detected_faces['frame'])[1] - np.unique(detected_faces['frame'])[0]
+
     for i in detected_faces.index:
         print i, ' of ', detected_faces.shape[0]
         if detected_faces['frame'][i] > frames_limit:
             break
-        if detected_faces['frame'][i] % step == 0:
+        if (detected_faces['frame'][i] / capture_step) % step == 0:
             input_image = caffe.io.load_image('./cropped/' + \
                                           make_im_name(detected_faces['frame'][i], detected_faces['person_id'][i]))
             detected_faces['age'][i] = age_net.predict([input_image], oversample=False)[0].argmax()
@@ -68,8 +70,8 @@ def recognize_people(frames_limit=10000000, step=125):
         print i, ' of ', detected_faces.shape[0]
         if detected_faces['frame'][i] > frames_limit:
             break
-        if detected_faces['frame'][i] % step == 0:
-            input_image = caffe.io.load_image('./cropped/' +
+        if (detected_faces['frame'][i] / capture_step) % step == 0:
+            input_image = caffe.io.load_image('./cropped/' + \
                                               make_im_name(detected_faces['frame'][i], detected_faces['person_id'][i]))
             detected_faces['gender'][i] = gender_list[gender_net.predict([input_image], oversample=False)[0].argmax()]
         else:
@@ -85,11 +87,11 @@ def recognize_people(frames_limit=10000000, step=125):
         if detected_faces['frame'][i] > frames_limit:
             break
         if detected_faces['frame'][i] % 2 == 0:
-            print 'proc'
+            # print 'proc'
             im = cv2.imread('./cropped/' +
                                               make_im_name(detected_faces['frame'][i], detected_faces['person_id'][i]))
             gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-            print cc.detectMultiScale(gray, 1.1, 1)
+            # print cc.detectMultiScale(gray, 1.1, 1)
             detected_faces['interest'][i] = len(cc.detectMultiScale(gray, 1.1, 1)) > 0
         else:
             detected_faces['interest'][i] = -1

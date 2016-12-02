@@ -2,8 +2,8 @@ import cv2
 import numpy as np
 
 global_config = {
-    'VJ_cascade_path' : 'haarcascade_frontalface_default.xml',
-    'cascade_params'  : [1.1, 3]
+    'VJ_cascade_path' : '../Project/cv_haar_cascades/haarcascade_frontalface_default.xml',
+    'cascade_params'  : [1.15, 3]
 }
 
 def get_faces_VJ(img, cascade):
