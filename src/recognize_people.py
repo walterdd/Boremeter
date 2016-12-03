@@ -110,12 +110,12 @@ def get_stats(table):
     print 'Mean age = ',  rec_data['age'].mean()
 
     x = data[['frame', 'interest']].groupby('frame').sum() / data[['frame', 'interest']].groupby('frame').size()[0]
-    x = x[x.index % 2 == 0]
-    x4 = x[x.index % 4 == 0]
-    xn4 = x[x.index % 4 != 0]
-    x4['interest'] += np.array(xn4['interest'])
-    x4['interest'] /= 2.
-    y = x4['interest']
-    x = x4.index
+    # x = x[x.index % 2 == 0]
+    # x4 = x[x.index % 4 == 0]
+    # xn4 = x[x.index % 4 != 0]
+    # x4['interest'] += np.array(xn4['interest'])
+    # x4['interest'] /= 2.
+    y = x['interest']
+    x = x.index / 25 
     plt.plot(x, y)
     plt.show()
