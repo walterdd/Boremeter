@@ -2,7 +2,7 @@
 
 <img src="https://github.com/walterdd/Auditory_tracking/blob/master/dogg.jpg" width="224">
 
-### This project is aimed to extracting audience socio-demographic characteristics and tracking viewers' concentration during  lectures or presentations.
+### This project is aimed at extracting audience socio-demographic characteristics and tracking viewers' concentration during  lectures or presentations.
 
 [People tracking example video](https://www.youtube.com/watch?v=LFJhAiqAA3c)
 
