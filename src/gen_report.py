@@ -28,8 +28,11 @@ if __name__ == "__main__":
         sys.exit(1)
     video_file = sys.argv[1]
     output_file = sys.argv[2]
-    detect.fast_extract(video_file, visualize=False, frames_limit=100)
+    print ("Extracting people.....")
+    detect.fast_extract(video_file, visualize=True, frames_limit=100)
+    print ("Extracting statistics.....")
     rec.recognize_people()
+    print ("Generating html.....")
     stats = rec.get_stats()
     gen_HTML(output_file, stats[0], stats[1], stats[2], stats[3])
 
