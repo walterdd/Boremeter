@@ -3,8 +3,7 @@ import numpy as np
 import sys
 from detector import *
 
-
-caffe_root = '../caffe/'
+caffe_root = '../../caffe/'
 sys.path.insert(0, caffe_root + 'python')
 import caffe
 
@@ -107,10 +106,10 @@ def get_stats(table):
     rec_data = data[(data['gender'] == 'Male') | (data['gender'] == 'Female')]
 
     mpc =  float((rec_data['gender'] == 'Male').sum()) / rec_data.shape[0] * 100
-    mean_age  rec_data['age'].mean()
+    ages = rec_data['age'].mean()
 
     x = data[['frame', 'interest']].groupby('frame').sum() / data[['frame', 'interest']].groupby('frame').size()[0]
 
     y = x['interest']
     x = x.index / 25 
-    return mpc, mean_age, x, y
+    return mpc, ages, x, y

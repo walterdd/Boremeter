@@ -1,5 +1,8 @@
 from jinja2 import Environment, FileSystemLoader
 import os
+import sys
+import extract_people as detect
+import recognize_people as rec
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -20,5 +23,14 @@ def gen_HTML(filename, men_pc, ages, time_arr, attention_arr):
 
 
 if __name__ == "__main__":
-    gen_HTML('test.html', 0.8, [45,33,32,11,21,43,65,87,65,43,32,22,12], [1,2,3,4,5], [0.9, 0.6, 0.4,0.5, 0.4])
+    if len(sys.argv) < 2:
+        print ("Provide video file path")
+        sys.exit(1)
+    video_file = sys.argv[1]
+    output_file = sys.argv[2]
+    detect.fast_extract(video_file, visualize=False, frames_limit=100)
+    rec.recognize_people()
+    stats = rec.get_stats()
+    gen_HTML(output_file, stats[0], stats[1], stats[2], stats[3])
+
 
