@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+	<script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+	<meta charset=utf-8 />
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+
+	<title>Event Report</title>
+
+
+
+</head>
+<body style="background-color: #eee">
+
+    <div  style="margin-left: 10%; background-color: #ffffff; width: 80%; padding: 2%">
+        <h1 align="center">
+            Event Report
+        </h1>
+    <hr>
+    <h3 align="center">
+        Soc-dem statistics
+    </h3>
+    <br>
+    <br>
+    <br>
+    <div class="row">
+        <div class = 'col-md-5'> 
+            Genders:
+            <div id='gender_pie'>
+            </div>
+        </div>
+        <div class = 'col-md-7'> 
+            Ages:
+            <div id='ages_hist'>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <h3 align="center">
+        Time row of interest
+    </h3>
+    <div id='time_row' >
+    </div>
+
+
+</div>
+
+
+
+
+</body>
+
+<script>
+    time_row = document.getElementById('time_row');
+
+    Plotly.plot( time_row, [{
+        x: {{ time_arr }},
+        y: {{ attention_arr }} }], {
+    margin: { t: 0 } } );
+
+    var data = [{
+      values: [{{ men_pc }}, 1 - {{ men_pc }}],
+      labels: ['Men', 'Women'],
+      type: 'pie'
+    }];
+
+    Plotly.newPlot('gender_pie', data);
+
+    var data = [
+      {
+        x: {{ages}},
+        type: 'histogram',
+        marker: {
+        color: 'rgba(20,100,170,0.9)',
+        },
+      }
+    ];
+
+    Plotly.newPlot('ages_hist', data);
+
+</script>
+
+</html>

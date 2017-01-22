@@ -6,6 +6,7 @@ global_config = {
     'cascade_params'  : [1.15, 3]
 }
 
+
 def get_faces_VJ(img, cascade):
 
     max_scale, min_neighbors = global_config['cascade_params']
