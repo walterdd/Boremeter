@@ -11,15 +11,15 @@ Given a video this app extracts audience socio-demographic statistics and tracks
 <img src="https://github.com/walterdd/Auditory_tracking/blob/master/dogg.jpg" width="224">
 
 [slides](https://docs.google.com/presentation/d/14mCydv-_sYkVHxImUnIX6PWRfpsfL49311rG099QPvc/edit#slide=id.g19ead2f26b_0_16)
+
 [People tracking example video](https://www.youtube.com/watch?v=LFJhAiqAA3c)
 
----
 
 ## Setup
 
 ### With Docker
 
-We strongly suggest you to run AuditoryTracking in (Docker)[https://www.docker.com]. That will make life easier. 
+We strongly suggest you to run AuditoryTracking in [Docker](https://www.docker.com). That will make life easier. 
 
 To install AuditoryTracking just clone the repository and build with Docker
 
@@ -56,10 +56,12 @@ You can give it a try!
 Download pre-trained caffe nets and save them to Auditory_tracking/caffe_models:
 
 [dex_imdb_wiki.caffemodel](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/dex_imdb_wiki.caffemodel)
+
 [gender.caffemodel](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/gender.caffemodel)
 
 Run
 
 ```bash
-$ python gen_report.py --file=$INPUT_FILENAME --output_video=$OUTPUT_FILENAME --output_html=$OUTPUT_HTML --frames_limit=100
+$ python gen_report.py --file=$INPUT_FILENAME --output_video=$OUTPUT_FILENAME \
+                       --output_html=$OUTPUT_HTML --frames_limit=100
 ```
