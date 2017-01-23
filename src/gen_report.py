@@ -3,9 +3,18 @@ import os
 import sys
 import extract_people as detect
 import recognize_people as rec
+import argparse
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
+parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+add_arg = parser.add_argument
+
+add_arg('file',                 type=str,                           help='Limit of frames to process.')
+add_arg('--frames_limit',       default=200, type=int,              help='Limit of frames to process.')
+add_arg('--output_html',        default='out.html', type=str,       help='Report file.')
+add_arg('--output_video',       default='NAN', type=str,            help='Videofile to visualise bbs on video.')
+args = parser.parse_args()
 
 def array_to_string(arr):
 	return '[' + ', '.join(str(x) for x in arr) + ']'
@@ -23,17 +32,21 @@ def gen_HTML(filename, men_pc, ages, time_arr, attention_arr):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 2:
-        print ("Provide video file path")
-        sys.exit(1)
-    video_file = sys.argv[1]
-    output_file = sys.argv[2]
+    if not args.file:
+        print "Provide input!"
+        sys.exit()
+
     print ("Extracting people.....")
-    detect.fast_extract(video_file, visualize=True, frames_limit=100)
+
+    if (args.output_video != 'NAN'):
+        detect.fast_extract(args.file, visualize=True, frames_limit=200, output_file_name=args.output_video)
+    else:
+        detect.fast_extract(args.file, visualize=False, frames_limit=200)
+
     print ("Extracting statistics.....")
     rec.recognize_people()
     print ("Generating html.....")
     stats = rec.get_stats()
-    gen_HTML(output_file, stats[0], stats[1], stats[2], stats[3])
+    gen_HTML(args.output_html, stats[0], stats[1], stats[2], stats[3])
 
 

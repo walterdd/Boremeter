@@ -93,20 +93,20 @@ def recognize_people(frames_limit=10000000, step=30):
             # print cc.detectMultiScale(gray, 1.1, 1)
             detected_faces['interest'][i] = len(cc.detectMultiScale(gray, 1.1, 1)) > 0
         else:
-            detected_faces['interest'][i] = -1
+            detected_faces['interest'][i] = 0
 
     detected_faces.to_csv('recognized.csv')
     return
 
 
 
-def get_stats(table):
+def get_stats(table='recognized.csv'):
     import matplotlib.pyplot as plt
     data = pd.read_csv(table)
     rec_data = data[(data['gender'] == 'Male') | (data['gender'] == 'Female')]
 
     mpc =  float((rec_data['gender'] == 'Male').sum()) / rec_data.shape[0] * 100
-    ages = rec_data['age'].mean()
+    ages = rec_data['age']
 
     x = data[['frame', 'interest']].groupby('frame').sum() / data[['frame', 'interest']].groupby('frame').size()[0]
 

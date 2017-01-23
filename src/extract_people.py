@@ -79,7 +79,7 @@ def extract_whole_data(video_file_path, visualize=False, faces_folder='cropped')
 
     return
 
-def fast_extract(video_file_path, visualize=False, faces_folder='cropped', frames_limit=100, det_step=10):
+def fast_extract(video_file_path, visualize=False, faces_folder='cropped', frames_limit=100, det_step=5, output_file_name='vis.avi'):
     input_video = cv2.VideoCapture(video_file_path)
 
     csvfile =  open('faces.csv', 'wb')
@@ -101,7 +101,7 @@ def fast_extract(video_file_path, visualize=False, faces_folder='cropped', frame
         height, width = frame.shape[0], frame.shape[1]
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         
-        output_video = cv2.VideoWriter('vis.avi', fourcc, 25, (width, height))
+        output_video = cv2.VideoWriter(output_file_name, fourcc, 25, (width, height))
 
     while cur_frame_num < frames_limit and ret:
 

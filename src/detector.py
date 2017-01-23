@@ -2,7 +2,7 @@ import cv2
 import numpy as np
 
 global_config = {
-    'VJ_cascade_path' : '../Project/cv_haar_cascades/haarcascade_frontalface_default.xml',
+    'VJ_cascade_path' : '../cv_haar_cascades/haarcascade_frontalface_default.xml',
     'cascade_params'  : [1.15, 3]
 }
 
