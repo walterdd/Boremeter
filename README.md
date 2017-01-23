@@ -62,5 +62,6 @@ Download pre-trained caffe nets and save them to Auditory_tracking/caffe_models:
 Run
 
 ```bash
-$ python gen_report.py --file=$INPUT_FILENAME --output_video=$OUTPUT_FILENAME --output_html=$OUTPUT_HTML --frames_limit=100
+$ python gen_report.py --file=$INPUT_FILENAME --output_video=$OUTPUT_FILENAME \
+                       --output_html=$OUTPUT_HTML --frames_limit=100
 ```
