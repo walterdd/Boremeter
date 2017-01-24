@@ -33,7 +33,7 @@ RUN cd ~/opencv/opencv/release && make -j $(nproc) && make install && sudo ldcon
 
 # Install pandas, Jinja2
 RUN pip install update pip && \
-  pip install Jinja2 pandas
+  pip install Jinja2 pandas tqdm
 
 WORKDIR /root/caffe/models
 

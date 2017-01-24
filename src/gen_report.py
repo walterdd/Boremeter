@@ -39,9 +39,9 @@ if __name__ == "__main__":
     print ("Extracting people.....")
 
     if (args.output_video != 'NAN'):
-        detect.fast_extract(args.file, visualize=True, frames_limit=200, output_file_name=args.output_video)
+        detect.fast_extract(args.file, visualize=True, frames_limit=args.frames_limit, output_file_name=args.output_video)
     else:
-        detect.fast_extract(args.file, visualize=False, frames_limit=200)
+        detect.fast_extract(args.file, visualize=False, frames_limit=args.frames_limit)
 
     print ("Extracting statistics.....")
     rec.recognize_people()
