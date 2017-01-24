@@ -2,4 +2,9 @@
 *~
 *.ipynb_checkpoints/*
 *.pyc
+*.mp4
+*.avi
+*.csv
+*.html
+*.DS_Store
 
