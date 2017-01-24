@@ -22,7 +22,7 @@ def array_to_string(arr):
 
 def gen_HTML(filename, men_pc, ages, time_arr, attention_arr):
     j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
-    template = j2_env.get_template('template.html')
+    template = j2_env.get_template('/root/Auditory_tracking/boremeter/template.html')
 
     with open(filename, "wb") as fh:
         fh.write(template.render(men_pc=men_pc, 
@@ -30,8 +30,7 @@ def gen_HTML(filename, men_pc, ages, time_arr, attention_arr):
             time_arr=array_to_string(time_arr), 
             attention_arr=array_to_string(attention_arr)))
 
-
-if __name__ == "__main__":
+def main():
     if not args.file:
         print "Provide input!"
         sys.exit()
@@ -48,5 +47,8 @@ if __name__ == "__main__":
     print ("Generating html.....")
     stats = rec.get_stats()
     gen_HTML(args.output_html, stats[0], stats[1], stats[2], stats[3])
+
+if __name__ == "__main__":
+    main()
 
 
