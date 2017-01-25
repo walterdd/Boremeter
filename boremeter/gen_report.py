@@ -8,12 +8,11 @@ import argparse
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-add_arg = parser.add_argument
 
-add_arg('--file',               type=str,                           help='input video file')
-add_arg('--frames_limit',       default=200, type=int,              help='limit of frames to process')
-add_arg('--output_html',        default='out.html', type=str,       help='path to output .html file with report')
-add_arg('--output_video',       default='NAN', type=str,            help='path to output .avi file with visualisation of bounding boxes')
+parser.add_argument('--file',               type=str,                           help='input video file')
+parser.add_argument('--frames_limit',       default=200, type=int,              help='limit of frames to process')
+parser.add_argument('--output_html',        default='out.html', type=str,       help='path to output .html file with report')
+parser.add_argument('--output_video',       default='NAN', type=str,            help='path to output .avi file with visualisation of bounding boxes')
 args = parser.parse_args()
 
 def array_to_string(arr):
