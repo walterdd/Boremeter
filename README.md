@@ -38,7 +38,7 @@ Faces tracking is implemented using sparse optical flow and Lucas–Kanade metho
 
 *You can find out more in [Lucas-Kanade in a Nutshell](http://www.inf.fu-berlin.de/inst/ag-ki/rojas_home/documents/tutorials/Lucas-Kanade2.pdf)*
 
-On the recognition stage we use [Caffe framework](http://caffe.berkeleyvision.org) and pre-trained convolutional neural networks from to exract age and gender from cropped images of detected faces. The pre-trained models are taken from (http://howhot.io) project.
+On the recognition stage we use [Caffe framework](http://caffe.berkeleyvision.org) and pre-trained convolutional neural networks from to exract age and gender from cropped images of detected faces. The pre-trained models are taken from http://howhot.io project.
 
 The output of the pipeline is a rendered HTML file which contains:
 
