@@ -1,5 +1,1 @@
-numpy
-pandas
-matplotlib
-Jinja2
-python-tk
+-e .
