@@ -5,13 +5,6 @@ import extract_people as detect
 import recognize_people as rec
 import argparse
 
-env = Environment(
-    loader=PackageLoader('yourapplication', 'templates'),
-    autoescape=select_autoescape(['html', 'xml'])
-)
-
-THIS_DIR = os.path.dirname(os.path.abspath(__file__))
-
 parser = argparse.ArgumentParser(formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('--file',               type=str,                           help='input video file')
@@ -26,7 +19,7 @@ def array_to_string(arr):
 
 def gen_HTML(filename, men_pc, ages, time_arr, attention_arr):
     j2_env = Environment(
-        loader=PackageLoader('boremeter', 'static'),
+        loader=PackageLoader('boremeter', 'templates'),
         autoescape=select_autoescape(['html'])
     )
     template = j2_env.get_template('report.html')
