@@ -10,7 +10,7 @@ Given a video this app extracts audience socio-demographic statistics and tracks
 
 <img src="https://github.com/walterdd/Auditory_tracking/blob/master/dogg.jpg" width="224">
 
-[slides](https://docs.google.com/presentation/d/14mCydv-_sYkVHxImUnIX6PWRfpsfL49311rG099QPvc/edit#slide=id.g19ead2f26b_0_16)
+[Slides from presentation of our project (russian)](https://docs.google.com/presentation/d/14mCydv-_sYkVHxImUnIX6PWRfpsfL49311rG099QPvc/edit#slide=id.g19ead2f26b_0_16)
 
 [People tracking example video](https://www.youtube.com/watch?v=LFJhAiqAA3c)
 
