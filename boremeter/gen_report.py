@@ -1,9 +1,14 @@
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, PackageLoader, select_autoescape
 import os
 import sys
 import extract_people as detect
 import recognize_people as rec
 import argparse
+
+env = Environment(
+    loader=PackageLoader('yourapplication', 'templates'),
+    autoescape=select_autoescape(['html', 'xml'])
+)
 
 THIS_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -20,8 +25,11 @@ def array_to_string(arr):
 
 
 def gen_HTML(filename, men_pc, ages, time_arr, attention_arr):
-    j2_env = Environment(loader=FileSystemLoader(THIS_DIR), trim_blocks=True)
-    template = j2_env.get_template('/root/Auditory_tracking/boremeter/template.html')
+    j2_env = Environment(
+        loader=PackageLoader('boremeter', 'static'),
+        autoescape=select_autoescape(['html'])
+    )
+    template = j2_env.get_template('report.html')
 
     with open(filename, "wb") as fh:
         fh.write(template.render(men_pc=men_pc, 

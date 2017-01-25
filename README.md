@@ -15,7 +15,7 @@ In the current project we develop a framework for video analysis of public prese
 
 With this app you can assess speaker’s skills or detect the most resonant parts of a presentation, or give a summary of some socio-demographic statistics such as age and gender distribution without conducting surveys.
 
-<img src="https://github.com/walterdd/Auditory_tracking/blob/master/dogg.jpg" width="224">
+<img src="dogg.jpg" width="224">
 
 [slides](https://docs.google.com/presentation/d/14mCydv-_sYkVHxImUnIX6PWRfpsfL49311rG099QPvc/edit#slide=id.g19ead2f26b_0_16)
 
@@ -59,13 +59,10 @@ Boremeter can also visualize detection results and output an .avi video file wit
 
 Download pre-trained caffe nets and save them locally to {caffe_root}/models:
 
-[age.prototxt](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/age.prototxt)
-
-[age.caffemodel](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/dex_imdb_wiki.caffemodel)
-
-[gender.proto](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/gender.prototxt)
-
-[gender.caffemodel](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/gender.caffemodel)
+- [age.prototxt](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/age.prototxt)
+- [age.caffemodel](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/dex_imdb_wiki.caffemodel)
+- [gender.proto](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/gender.prototxt)
+- [gender.caffemodel](https://data.vision.ee.ethz.ch/cvl/rrothe/imdb-wiki/static/gender.caffemodel)
 
 ### Install package
 
