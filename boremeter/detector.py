@@ -1,9 +1,10 @@
 import cv2
 import numpy as np
+import pkg_resources
 
 global_config = {
-    'VJ_cascade_path' : '../cv_haar_cascades/haarcascade_frontalface_default.xml',
-    'cascade_params'  : [1.15, 3]
+    'VJ_cascade_path' : pkg_resources.resource_filename('boremeter', 'cv_haar_cascades/haarcascade_frontalface_default.xml'),
+    'cascade_params'  : [1.15, 3],
 }
 
 

@@ -48,10 +48,10 @@ def visualize_bbs(frames, output_file='visual.avi', fps=25.0):
 
     return 
 
-def frame_to_faces(frame, frame_num, folder_path='./cropped'):
+def frame_to_faces(frame, frame_num, folder_path='tmp'):
     pass
 
-def save_cropped_faces(frames, folder_path='./cropped'):
+def save_cropped_faces(frames, folder_path='tmp'):
     for frame_num in frames:
         for person_id in frames[frame_num][1]:
             bb = frames[frame_num][1][person_id]['coords']
@@ -60,14 +60,14 @@ def save_cropped_faces(frames, folder_path='./cropped'):
                         img[bb[1] : bb[1] + bb[3], bb[0] : bb[0] + bb[2]])
     return 
 
-def save_cropped_faces_one_frame(img, frame_num, frame_bbs, folder_path='./cropped'):
+def save_cropped_faces_one_frame(img, frame_num, frame_bbs, folder_path='tmp'):
     for person_id in frame_bbs:
         bb = frame_bbs[person_id]
         cv2.imwrite(folder_path +  "/frame%dperson%d.jpg" % (frame_num, person_id), 
                     img[bb[1] : bb[1] + bb[3], bb[0] : bb[0] + bb[2]])
     return 
 
-def extract_whole_data(video_file_path, visualize=False, faces_folder='cropped'):
+def extract_whole_data(video_file_path, visualize=False, faces_folder='tmp'):
 
     faces = detect_faces_on_video(video_file_path)
     faces = track_faces(faces)
@@ -79,7 +79,7 @@ def extract_whole_data(video_file_path, visualize=False, faces_folder='cropped')
 
     return
 
-def fast_extract(video_file_path, visualize=False, faces_folder='cropped', frames_limit=100, det_step=5, output_file_name='vis.avi'):
+def fast_extract(video_file_path, visualize, frames_limit, output_file_name="", faces_folder='tmp', detection_step=1):
     input_video = cv2.VideoCapture(video_file_path)
 
     csvfile =  open('faces.csv', 'wb')
@@ -105,7 +105,7 @@ def fast_extract(video_file_path, visualize=False, faces_folder='cropped', frame
 
     while cur_frame_num < frames_limit and ret:
 
-        while cur_frame_num % det_step != 0:
+        while cur_frame_num % detection_step != 0:
             ret, frame = input_video.read() 
             cur_frame_num += 1
 
@@ -114,7 +114,7 @@ def fast_extract(video_file_path, visualize=False, faces_folder='cropped', frame
 
         cur_faces = {}
 
-        if cur_frame_num % det_step == 0:
+        if cur_frame_num % detection_step == 0:
             found_bbs = detect_faces(frame)
 
             for bb in found_bbs:
