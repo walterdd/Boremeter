@@ -3,7 +3,7 @@
 **[Setup](#setup)** |
 **[With Docker](#with-docker)**
 
-## Boremeter
+# Boremeter
 
 *Open source app for tracking auditory boredom on video*
 
