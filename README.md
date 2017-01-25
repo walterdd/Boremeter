@@ -33,11 +33,12 @@ The boremeter pipeline includes four main components:
 For faces detection we use fast and robust Viola-Jones algorithm. 
 
 *More on Viola-Jones algorithm you can read in original [paper](https://www.vision.caltech.edu/html-files/EE148-2005-Spring/pprs/viola04ijcv.pdf)*
+
 Faces tracking is implemented using sparse optical flow and Lucas–Kanade method. 
 
-*You can find out more in [Lucas-Kanade in a Nutshell](http://www.inf.fu-berlin.de/inst/ag-ki/rojas_home/documents/tutorials/Lucas-Kanade2.pdf)
+*You can find out more in [Lucas-Kanade in a Nutshell](http://www.inf.fu-berlin.de/inst/ag-ki/rojas_home/documents/tutorials/Lucas-Kanade2.pdf)*
 
-On the recognition stage we use [Caffe framework](http://caffe.berkeleyvision.org) and pre-trained convolutional neural networks from to exract age and gender from cropped images of detected faces. The pre-trained models are taken from (howhot.io) project.
+On the recognition stage we use [Caffe framework](http://caffe.berkeleyvision.org) and pre-trained convolutional neural networks from to exract age and gender from cropped images of detected faces. The pre-trained models are taken from http://howhot.io project.
 
 The output of the pipeline is a rendered HTML file which contains:
 
