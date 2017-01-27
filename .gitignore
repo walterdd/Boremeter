@@ -7,5 +7,6 @@
 *.csv
 *.html
 *.DS_Store
-
+*.MPG
+*.egg-info
 

@@ -1,4 +1,5 @@
 import csv
+import os
 from detector import *
 from tracker import *
 
@@ -46,43 +47,40 @@ def visualize_bbs(frames, output_file='visual.avi', fps=25.0):
     
     output_video.release()
 
-    return 
+    return
 
-def frame_to_faces(frame, frame_num, folder_path='tmp'):
-    pass
-
-def save_cropped_faces(frames, folder_path='tmp'):
+def save_cropped_faces(frames, tmp_dir):
     for frame_num in frames:
         for person_id in frames[frame_num][1]:
             bb = frames[frame_num][1][person_id]['coords']
             img = frames[frame_num][0]
-            cv2.imwrite(folder_path +  "/frame%dperson%d.jpg" % (frame_num, person_id), 
+            cv2.imwrite(tmp_dir +  "/frame%dperson%d.jpg" % (frame_num, person_id), 
                         img[bb[1] : bb[1] + bb[3], bb[0] : bb[0] + bb[2]])
     return 
 
-def save_cropped_faces_one_frame(img, frame_num, frame_bbs, folder_path='tmp'):
+def save_cropped_faces_one_frame(img, frame_num, frame_bbs, tmp_dir):
     for person_id in frame_bbs:
         bb = frame_bbs[person_id]
-        cv2.imwrite(folder_path +  "/frame%dperson%d.jpg" % (frame_num, person_id), 
+        cv2.imwrite(tmp_dir +  "/frame%dperson%d.jpg" % (frame_num, person_id), 
                     img[bb[1] : bb[1] + bb[3], bb[0] : bb[0] + bb[2]])
     return 
 
-def extract_whole_data(video_file_path, visualize=False, faces_folder='tmp'):
+def extract_whole_data(video_file_path, visualize, tmp_dir):
 
     faces = detect_faces_on_video(video_file_path)
     faces = track_faces(faces)
 
-    save_cropped_faces(faces, faces_folder)
+    save_cropped_faces(faces, tmp_dir)
     if visualize:
         visualize_bbs(faces)
     write_faces_to_csv(faces)
 
     return
 
-def fast_extract(video_file_path, visualize, frames_limit, output_file_name="", faces_folder='tmp', detection_step=1):
+def fast_extract(video_file_path, visualize, frames_limit, tmp_dir, output_videofile=None, detection_step=1):
     input_video = cv2.VideoCapture(video_file_path)
 
-    csvfile =  open('faces.csv', 'wb')
+    csvfile =  open(os.path.join(tmp_dir, 'faces.csv'), 'wb')
     writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
     writer.writerow(['frame', 'person_id', 'x', 'y', 'w', 'h'])
 
@@ -101,7 +99,7 @@ def fast_extract(video_file_path, visualize, frames_limit, output_file_name="", 
         height, width = frame.shape[0], frame.shape[1]
         fourcc = cv2.VideoWriter_fourcc(*'XVID')
         
-        output_video = cv2.VideoWriter(output_file_name, fourcc, 25, (width, height))
+        output_video = cv2.VideoWriter(output_videofile.name, fourcc, 25, (width, height))
 
     while cur_frame_num < frames_limit and ret:
 
@@ -154,7 +152,7 @@ def fast_extract(video_file_path, visualize, frames_limit, output_file_name="", 
                 cur_faces[prev_id] = prev_faces[prev_id].copy()
 
 
-        save_cropped_faces_one_frame(frame, cur_frame_num, cur_faces)
+        save_cropped_faces_one_frame(frame, cur_frame_num, cur_faces, tmp_dir)
 
         for person_id in cur_faces:
                 x, y, w, h = cur_faces[person_id]
