@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from setuptools import setup
+from setuptools import setup, find_packages
 
 setup(
     name='boremeter',
@@ -16,6 +16,8 @@ setup(
         "Jinja2",
         "tqdm",
     ],
+    package_data={'boremeter': ['cv_haar_cascades/*.xml']},
+    include_package_data=True,
     entry_points={
           'console_scripts': [
               'boremeter = boremeter.gen_report:main'
