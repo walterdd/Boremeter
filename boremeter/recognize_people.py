@@ -81,7 +81,7 @@ def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step)
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         detected_faces.loc[i, 'interest'] = len(cc.detectMultiScale(gray, 1.1, 1)) > 0
 
-    detected_faces = detected_faces.fillna('nan')
+    detected_faces = detected_faces.fillna(np.nan)
     return detected_faces
 
 
@@ -95,5 +95,3 @@ def get_stats(detected_faces):
                     np.array(detected_faces[['frame', 'interest']].groupby('frame').size()) * 100
     frames_id = np.unique(detected_faces["frame"])
     return men_pc, ages, frames_id, interested_pc
-
-
