@@ -61,8 +61,8 @@ def are_close(bb1, bb2):
     if abs(bb1.get_area() - bb2.get_area()) > max(bb1.get_area(), bb2.get_area()) / 4:  # check areas
         return False
     
-    return (abs(bb1.get_center()[0] - bb2.get_center()[0]) < bb1.w / 2) and \
-           (abs(bb1.get_center()[1] - bb2.get_center()[1]) < bb1.h / 2)
+    return ((abs(bb1.get_center()[0] - bb2.get_center()[0]) < bb1.w / 2) and
+            (abs(bb1.get_center()[1] - bb2.get_center()[1]) < bb1.h / 2))
 
 
 def intersection_area(bb1, bb2):

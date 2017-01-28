@@ -1,4 +1,5 @@
 import os
+import gc
 
 import pandas as pd
 import numpy as np
@@ -10,7 +11,7 @@ from detector import DETECTOR_CONFIG
 
 
 def load_net(caffe_models_path, net_type):
-    new_net = ""
+    new_net = ''
     if net_type == 'age':
         age_net_pretrained = os.path.join(caffe_models_path, 'age.caffemodel')
         age_net_model_file = os.path.join(caffe_models_path, 'age.prototxt')
@@ -20,8 +21,8 @@ def load_net(caffe_models_path, net_type):
                                    image_dims=(256, 256))
 
     if net_type == 'gender':
-        gender_net_pretrained = os.path.join(caffe_models_path, "gender.caffemodel")
-        gender_net_model_file = os.path.join(caffe_models_path, "gender.prototxt")
+        gender_net_pretrained = os.path.join(caffe_models_path, 'gender.caffemodel')
+        gender_net_model_file = os.path.join(caffe_models_path, 'gender.prototxt')
         new_net = caffe.Classifier(gender_net_model_file, gender_net_pretrained,
                                    channel_swap=(2, 1, 0),
                                    raw_scale=255,
@@ -30,7 +31,7 @@ def load_net(caffe_models_path, net_type):
 
 
 def make_image_name(frame_num, person_id):
-    return "frame%dperson%d.jpg" % (frame_num, person_id)
+    return 'frame%dperson%d.jpg' % (frame_num, person_id)
 
 
 def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step):
@@ -68,15 +69,17 @@ def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step)
             else:
                 ages[detected_faces['person_id'][i]] = [detected_faces.loc[i, 'age'], 1]
 
-    del age_net
+    del age_net  # deleting net to clean the memory
+    gc.collect()
 
-    for i in tqdm(detected_faces.index):
+    for i in detected_faces.index:
 
         try:
-            detected_faces.loc[i, 'age'] = ages[detected_faces['person_id'][i]][0] / \
-                                           ages[detected_faces['person_id'][i]][1]
+            ages_sum, count = ages[detected_faces['person_id'][i]]
+            detected_faces.loc[i, 'age'] = ages_sum / count
+
         except:
-            detected_faces.loc[i, 'age'] = -1
+            detected_faces.loc[i, 'age'] = None  # mean? median?
 
     # recognize gender if frame_id % recognition_step == 0
 
@@ -99,15 +102,16 @@ def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step)
             else:
                 genders[detected_faces['person_id'][i]] = [int(detected_faces.loc[i, 'gender'] == 'Male'), 1]
 
-    del gender_net
+    del gender_net # deleting net to clean the memory
+    gc.collect()
 
     for i in tqdm(detected_faces.index):
 
         try:
-            detected_faces.loc[i, 'gender'] = "Male" if float(genders[detected_faces['person_id'][i]][0]) / \
-                                              genders[detected_faces['person_id'][i]][1] > 0.5 else "Female"
+            detected_faces.loc[i, 'gender'] = 'Male' if float(genders[detected_faces['person_id'][i]][0]) / \
+                                              genders[detected_faces['person_id'][i]][1] > 0.5 else 'Female'
         except:
-            detected_faces.loc[i, 'gender'] = "Male"
+            detected_faces.loc[i, 'gender'] = 'Male'
 
     cc = cv2.CascadeClassifier(DETECTOR_CONFIG['VJ_cascade_path'])
 
@@ -129,8 +133,8 @@ def get_stats(detected_faces):
     ages = recognized_faces['age']
 
     # percentage of interested faces in frames
-    interested_pc = np.array(detected_faces[['frame', 'interest']].groupby('frame').sum()["interest"], dtype=float) / \
+    interested_pc = np.array(detected_faces[['frame', 'interest']].groupby('frame').sum()['interest'], dtype=float) / \
         np.array(detected_faces[['frame', 'interest']].groupby('frame').size()) * 100
 
-    frames_id = np.unique(detected_faces["frame"])
+    frames_id = np.unique(detected_faces['frame'])
     return men_pc, ages, frames_id, interested_pc

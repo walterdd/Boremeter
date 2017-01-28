@@ -19,7 +19,11 @@ def draw_bbox(img, bbox, male_gender, interest):
 
 
 def put_info(img, bbox, person_id, age):
-    string = "id_%d age=%d" % (person_id, age)
+    print age
+    try:
+        string = 'id_%d age=%d' % (person_id, int(age))
+    except:
+        string = 'id_%d ' % person_id
     cv2.putText(img, string, (bbox.x, bbox.y), 1, 1, (0, 0, 0), 1, cv2.LINE_AA)
     cv2.putText(img, string, (bbox.x - 1, bbox.y - 1), 1, 1, (255, 255, 255), 1, cv2.LINE_AA)
     return img
@@ -27,14 +31,14 @@ def put_info(img, bbox, person_id, age):
 
 def draw_bboxes(img, df):
     for person_id in df['person_id'].values:
-        bbox = BoundingBox(*df[['x', 'y', 'w', 'h']][df["person_id"] == person_id].values[0])
-        male_gender = df['gender'][df["person_id"] == person_id].values[0] == 'Male'
-        interest = df['interest'][df["person_id"] == person_id].values[0]
+        bbox = BoundingBox(*df[['x', 'y', 'w', 'h']][df['person_id'] == person_id].values[0])
+        male_gender = df['gender'][df['person_id'] == person_id].values[0] == 'Male'
+        interest = df['interest'][df['person_id'] == person_id].values[0]
         img = draw_bbox(img, bbox, male_gender, interest)
 
     for person_id in df['person_id'].values:
-        bbox = BoundingBox(*df[['x', 'y', 'w', 'h']][df["person_id"] == person_id].values[0])
-        age = df['age'][df["person_id"] == person_id].values[0]
+        bbox = BoundingBox(*df[['x', 'y', 'w', 'h']][df['person_id'] == person_id].values[0])
+        age = df['age'][df['person_id'] == person_id].values[0]
         img = put_info(img, bbox, person_id, age)
 
     return img
