@@ -1,18 +1,20 @@
-import csv
-import cv2
 import os
-from detector import *
-from bbs import *
+import csv
+
+import cv2
+
+from detector import detect_faces
+from bounding_boxes import have_intersection, are_close
 
 
-def crop_faces(img, frame_num, bbs, tmp_dir):
-    for person_id in bbs:
-        bb = bbs[person_id]
-        bb = bb.copy()  # copying to avoid changes in the original bb
-        bb.resize(scale=1.3)
+def crop_faces(img, frame_num, bboxes, tmp_dir):
+    for person_id in bboxes:
+        bbox = bboxes[person_id]
+        bbox = bbox.copy()  # copying to avoid changes in the original bbox
+        bbox.resize(scale=1.3)
 
         cv2.imwrite(os.path.join(tmp_dir, "frame%dperson%d.jpg" % (frame_num, person_id)),
-                    img[bb.top: bb.bottom, bb.left: bb.right])
+                    img[bbox.top: bbox.bottom, bbox.left: bbox.right])
 
 
 def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
@@ -24,11 +26,11 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
     input_video = cv2.VideoCapture(video_file_path)
     ret, frame = input_video.read()
 
-    initial_timeout = 50    # number of frames to keep the bb
+    initial_timeout = 50    # number of frames to keep the bbox
     cur_frame_num = 0
-    prev_faces = {}         # bbs from the previous frame
+    prev_faces = {}         # bboxes from the previous frame
     max_id = 0              # last given id
-    timeouts = {}           # current timeouts for bbs
+    timeouts = {}           # current timeouts for bboxes
 
     while cur_frame_num < frames_limit and ret:
 
@@ -40,12 +42,12 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
             break
 
         cur_faces = {}
-        found_bbs = detect_faces(frame)
+        found_bboxes = detect_faces(frame)
         tmp_faces = {}
         faces_to_delete = []
 
-        for bb in found_bbs:
-            cur_faces[max_id] = bb
+        for bbox in found_bboxes:
+            cur_faces[max_id] = bbox
             timeouts[max_id] = initial_timeout
             max_id += 1
 

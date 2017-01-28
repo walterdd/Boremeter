@@ -1,12 +1,15 @@
-from jinja2 import Environment, PackageLoader, select_autoescape
+
 import os
-import tempfile
-import extract_people as detect
-import recognize_people as rec
-from visualize import *
 import argparse
+import tempfile
+
 import contextlib
 import shutil
+from jinja2 import Environment, PackageLoader, select_autoescape
+
+import extract_people as detect
+import recognize_people as rec
+from visualize import visualize
 
 DETECTION_STEP = 3
 RECOGNITION_STEP = DETECTION_STEP * 6

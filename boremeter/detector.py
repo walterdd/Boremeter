@@ -1,7 +1,8 @@
 import cv2
 import numpy as np
 import pkg_resources
-from bbs import *
+
+from bounding_boxes import BoundingBox
 
 DETECTOR_CONFIG = {
     'VJ_cascade_path': pkg_resources.resource_filename('boremeter',
@@ -14,20 +15,20 @@ def get_faces_vj(img, cascade):
     max_scale, min_neighbors = DETECTOR_CONFIG['cascade_params']
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     detected = cascade.detectMultiScale(gray, max_scale, min_neighbors)
-    bbs = []
+    bboxs = []
     for face in detected:
-        bbs.append(BoundingBox(*face))
-    return bbs
+        bboxs.append(BoundingBox(*face))
+    return bboxs
 
 
-def filter_faces(bbs):
+def filter_faces(bboxs):
     pass
-    return bbs
+    return bboxs
 
 
-def check_faces(bbs):
+def check_faces(bboxs):
     pass
-    return bbs
+    return bboxs
 
 
 def detect_faces(img, raw_detector='VJ'):

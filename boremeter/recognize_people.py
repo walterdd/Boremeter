@@ -1,11 +1,12 @@
+import os
+
 import pandas as pd
 import numpy as np
-import sys
-import os
-from detector import *
+import cv2
 import caffe
-import matplotlib.pyplot as plt
 from tqdm import tqdm
+
+from detector import DETECTOR_CONFIG
 
 
 def load_net(caffe_models_path, net_type):
