@@ -1,5 +1,5 @@
 
-class BoundibgBox:
+class BoundingBox:
     """
     Bb - class for bounding boxes
 
@@ -51,7 +51,7 @@ class BoundibgBox:
         return self.x + self.w / 2, self.y + self.h / 2
 
     def copy(self):
-        return BoundibgBox(self.x, self.y, self.w, self.h)
+        return BoundingBox(self.x, self.y, self.w, self.h)
 
 
 def are_close(bb1, bb2):
@@ -89,4 +89,4 @@ def pts_to_bb(pts):
     y = min(pts[0][1], pts[1][1], pts[2][1], pts[3][1]) 
     w = max(pts[0][0], pts[1][0], pts[2][0], pts[3][0]) - x
     h = max(pts[0][1], pts[1][1], pts[2][1], pts[3][1]) - y
-    return BoundibgBox(x, y, w, h)
+    return BoundingBox(x, y, w, h)

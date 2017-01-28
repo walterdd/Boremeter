@@ -26,13 +26,13 @@ def put_info(img, bb, person_id, age):
 
 def draw_bbs(img, df):
     for person_id in df['person_id'].values:
-        bb = BoundibgBox(*df[['x', 'y', 'w', 'h']][df["person_id"] == person_id].values[0])
+        bb = BoundingBox(*df[['x', 'y', 'w', 'h']][df["person_id"] == person_id].values[0])
         male_gender = df['gender'][df["person_id"] == person_id].values[0] == 'Male'
         interest = df['interest'][df["person_id"] == person_id].values[0]
         img = draw_bb(img, bb, male_gender, interest)
 
     for person_id in df['person_id'].values:
-        bb = BoundibgBox(*df[['x', 'y', 'w', 'h']][df["person_id"] == person_id].values[0])
+        bb = BoundingBox(*df[['x', 'y', 'w', 'h']][df["person_id"] == person_id].values[0])
         age = df['age'][df["person_id"] == person_id].values[0]
         img = put_info(img, bb, person_id, age)
 
