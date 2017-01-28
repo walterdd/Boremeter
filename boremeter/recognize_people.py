@@ -105,7 +105,6 @@ def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step)
         try:
             detected_faces.loc[i, 'gender'] = "Male" if float(genders[detected_faces['person_id'][i]][0]) / \
                                               genders[detected_faces['person_id'][i]][1] > 0.5 else "Female"
-            print float(genders[detected_faces['person_id'][i]][0]) / genders[detected_faces['person_id'][i]][1]
         except:
             detected_faces.loc[i, 'gender'] = "Male"
 

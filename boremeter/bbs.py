@@ -1,43 +1,40 @@
 
-"""
-Bb - class for bounding boxes
+class BoundibgBox:
+    """
+    Bb - class for bounding boxes
 
-      x (left)    right
-          |          |
-          |          |
-y (top)___|__________|
-          |          |
-          | BOUNDING |
-          |   BOX    | h
-bottom____|__________|
-               w
+          x (left)    right
+              |          |
+              |          |
+    y (top)___|__________|
+              |          |
+              | BOUNDING |
+              |   BOX    | h
+    bottom____|__________|
+                   w
 
-"""
+    """
+    def __init__(self, x, y, w, h):
+        self.x, self.y, self.w, self.h = x, y, w, h
 
+    @property
+    def left(self):
+        return self.x
 
-class Bb:
-    def __init__(self, x=0, y=0, w=0, h=0, as_tuple=None):
-        if as_tuple is not None:
-            self.x, self.y, self.w, self.h = as_tuple
-        else:
-            self.x, self.y, self.w, self.h = x, y, w, h
-        self.left = self.x
-        self.right = self.x + self.w
-        self.top = self.y
-        self.bottom = self.y + self.h
+    @property
+    def right(self):
+        return self.x + self.w
 
-    def init_borders(self):
-        self.left = self.x
-        self.right = self.x + self.w
-        self.top = self.y
-        self.bottom = self.y + self.h
+    @property
+    def top(self):
+        return self.y
+
+    @property
+    def bottom(self):
+        return self.y + self.h
 
     def get(self):
         return self.x, self.y, self.w, self.h
-
-    def set(self, x, y, w, h):
-        self.x, self.y, self.w, self.h = x, y, w, h
-        self.init_borders()
 
     def resize(self, scale):
         self.x -= int(self.w * (scale - 1) / 2)
@@ -46,7 +43,6 @@ class Bb:
         self.y = max(self.y, 0)
         self.w = int(self.w * scale)
         self.h = int(self.h * scale)
-        self.init_borders()
 
     def get_area(self):
         return self.w * self.h
@@ -55,7 +51,7 @@ class Bb:
         return self.x + self.w / 2, self.y + self.h / 2
 
     def copy(self):
-        return Bb(self.x, self.y, self.w, self.h)
+        return BoundibgBox(self.x, self.y, self.w, self.h)
 
 
 def are_close(bb1, bb2):
@@ -93,4 +89,4 @@ def pts_to_bb(pts):
     y = min(pts[0][1], pts[1][1], pts[2][1], pts[3][1]) 
     w = max(pts[0][0], pts[1][0], pts[2][0], pts[3][0]) - x
     h = max(pts[0][1], pts[1][1], pts[2][1], pts[3][1]) - y
-    return Bb(x, y, w, h)
+    return BoundibgBox(x, y, w, h)

@@ -16,7 +16,7 @@ def get_faces_vj(img, cascade):
     detected = cascade.detectMultiScale(gray, max_scale, min_neighbors)
     bbs = []
     for face in detected:
-        bbs.append(Bb(as_tuple=face))
+        bbs.append(BoundibgBox(*face))
     return bbs
 
 
