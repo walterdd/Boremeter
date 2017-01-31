@@ -19,7 +19,6 @@ def draw_bbox(img, bbox, male_gender, interest):
 
 
 def put_info(img, bbox, person_id, age):
-    print age
     try:
         string = 'id_%d age=%d' % (person_id, int(age))
     except:

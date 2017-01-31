@@ -29,10 +29,10 @@ def check_faces(bboxes):
 
 def detect_faces(img, raw_detector='VJ'):
 
-    raw_faces = np.array([])
-
     if raw_detector == 'VJ':
         detector = cv2.CascadeClassifier(DETECTOR_CONFIG['VJ_cascade_path'])
         raw_faces = get_faces_vj(img, detector)
+    else:
+        raise RuntimeError('Detection method %s is not supported' % raw_detector)
 
     return raw_faces

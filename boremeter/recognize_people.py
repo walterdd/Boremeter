@@ -10,36 +10,43 @@ from tqdm import tqdm
 from detector import DETECTOR_CONFIG
 
 
-def load_net(caffe_models_path, net_type):
-    new_net = ''
-    if net_type == 'age':
-        age_net_pretrained = os.path.join(caffe_models_path, 'age.caffemodel')
-        age_net_model_file = os.path.join(caffe_models_path, 'age.prototxt')
-        new_net = caffe.Classifier(age_net_model_file, age_net_pretrained,
-                                   channel_swap=(2, 1, 0),
-                                   raw_scale=255,
-                                   image_dims=(256, 256))
+class Recognizer:
+    def __init__(self, models_folder, caffe_model, prototype):
+        model = os.path.join(models_folder, prototype)
+        pretrained_weights = os.path.join(models_folder, caffe_model)
 
-    if net_type == 'gender':
-        gender_net_pretrained = os.path.join(caffe_models_path, 'gender.caffemodel')
-        gender_net_model_file = os.path.join(caffe_models_path, 'gender.prototxt')
-        new_net = caffe.Classifier(gender_net_model_file, gender_net_pretrained,
-                                   channel_swap=(2, 1, 0),
-                                   raw_scale=255,
-                                   image_dims=(256, 256))
-    return new_net
+        self.net = caffe.Classifier(model,
+                                    pretrained_weights,
+                                    channel_swap=(2, 1, 0),
+                                    raw_scale=255,
+                                    image_dims=(256, 256),
+                                    )
+
+    def __del__(self):
+        del self.net
+
+    def predict(self, x, batch=False):
+        return self.net.predict(x, oversample=False) if batch else self.net.predict([x], oversample=False)
+
+
+class AgeRecognizer(Recognizer):
+    def predict(self, x, batch=False):
+        return Recognizer.predict(self, x, batch=batch)[0].argmax()
+
+
+class GenderRecognizer(Recognizer):
+    def predict(self, x, batch=False):
+        genders = ['Female', 'Male']
+        return genders[Recognizer.predict(self, x, batch=batch)[0].argmax()]
 
 
 def make_image_name(frame_num, person_id):
     return 'frame%dperson%d.jpg' % (frame_num, person_id)
 
-
 def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step):
-    gender_list = ['Female', 'Male']
-
     # load pre-trained nets
 
-    age_net = load_net(caffe_models_path, 'age')
+    age_recognizer = AgeRecognizer(caffe_models_path, 'age.caffemodel', 'age.prototxt')
 
     # read table of detected people
     # populate age, gender and interest with zeros for the moment
@@ -61,7 +68,7 @@ def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step)
                                                            make_image_name(detected_faces['frame'][i],
                                                                            detected_faces['person_id'][i])))
 
-            detected_faces.loc[i, 'age'] = age_net.predict([input_image], oversample=False)[0].argmax()
+            detected_faces.loc[i, 'age'] = age_recognizer.predict(input_image)
 
             if detected_faces['person_id'][i] in ages:
                 ages[detected_faces['person_id'][i]][0] += detected_faces.loc[i, 'age']
@@ -69,7 +76,7 @@ def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step)
             else:
                 ages[detected_faces['person_id'][i]] = [detected_faces.loc[i, 'age'], 1]
 
-    del age_net  # deleting net to clean the memory
+    del age_recognizer  # deleting net to clean the memory
     gc.collect()
 
     for i in detected_faces.index:
@@ -83,7 +90,7 @@ def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step)
 
     # recognize gender if frame_id % recognition_step == 0
 
-    gender_net = load_net(caffe_models_path, 'gender')
+    gender_recognizer = GenderRecognizer(caffe_models_path, 'gender.caffemodel', 'gender.prototxt')
     genders = {}
 
     for i in tqdm(detected_faces.index):
@@ -94,15 +101,14 @@ def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step)
                                                            make_image_name(detected_faces['frame'][i],
                                                                            detected_faces['person_id'][i])))
 
-            detected_faces.loc[i, 'gender'] = gender_list[gender_net.predict([input_image],
-                                                                             oversample=False)[0].argmax()]
+            detected_faces.loc[i, 'gender'] = gender_recognizer.predict(input_image)
             if detected_faces['person_id'][i] in genders:
                 genders[detected_faces['person_id'][i]][0] += int(detected_faces.loc[i, 'gender'] == 'Male')
                 genders[detected_faces['person_id'][i]][1] += 1
             else:
                 genders[detected_faces['person_id'][i]] = [int(detected_faces.loc[i, 'gender'] == 'Male'), 1]
 
-    del gender_net # deleting net to clean the memory
+    del gender_recognizer # deleting net to clean the memory
     gc.collect()
 
     for i in tqdm(detected_faces.index):
