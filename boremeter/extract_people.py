@@ -4,14 +4,14 @@ import csv
 import cv2
 
 from detector import detect_faces
-from bounding_boxes import have_intersection, are_close
+from bounding_boxes import have_intersection, bboxes_are_close
 
 
 def crop_faces(img, frame_num, bboxes, tmp_dir):
     for person_id in bboxes:
         bbox = bboxes[person_id]
         bbox = bbox.copy()  # copying to avoid changes in the original bbox
-        bbox.resize(scale=1.3)
+        bbox = bbox.resize(scale=1.3)
 
         crop_file_path = os.path.join(tmp_dir, 'frame%dperson%d.jpg' % (frame_num, person_id))
         crop_img = img[bbox.top: bbox.bottom, bbox.left: bbox.right]
@@ -56,7 +56,7 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
             found = 0
             for prev_id in prev_faces:
                 if timeouts[prev_id] > 0:
-                    if not found and are_close(prev_faces[prev_id], cur_faces[cur_id]):
+                    if not found and bboxes_are_close(prev_faces[prev_id], cur_faces[cur_id]):
                         tmp_faces[prev_id] = cur_faces[cur_id]
                         timeouts[prev_id] = initial_timeout
                         found = 1

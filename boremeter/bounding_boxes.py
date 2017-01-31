@@ -37,32 +37,38 @@ class BoundingBox:
         return self.x, self.y, self.w, self.h
 
     def resize(self, scale):
-        self.x -= int(self.w * (scale - 1) / 2)
-        self.y -= int(self.h * (scale - 1) / 2)
-        self.x = max(self.x, 0)
-        self.y = max(self.y, 0)
-        self.w = int(self.w * scale)
-        self.h = int(self.h * scale)
+        new_x = self.x - int(self.w * (scale - 1) / 2)
+        new_y = self.y - int(self.h * (scale - 1) / 2)
+        new_x = max(new_x, 0)
+        new_y = max(new_y, 0)
+        new_w = int(self.w * scale)
+        new_h = int(self.h * scale)
+        return BoundingBox(new_x, new_y, new_w, new_h)
 
-    def get_area(self):
+    @property
+    def area(self):
         return self.w * self.h
 
-    def get_center(self):
+    @property
+    def center(self):
         return self.x + self.w / 2, self.y + self.h / 2
 
     def copy(self):
         return BoundingBox(self.x, self.y, self.w, self.h)
 
 
-def are_close(bb1, bb2):
+def bboxes_are_close(bb1, bb2):
+    """
+    Check if two bounding boxes are close and have similar shapes.
+    """
     
-    # check if two bounding boxes are close and have similar shapes
-    
-    if abs(bb1.get_area() - bb2.get_area()) > max(bb1.get_area(), bb2.get_area()) / 4:  # check areas
+    if abs(bb1.area - bb2.area) > max(bb1.area, bb2.area) / 4:  # check areas
         return False
-    
-    return ((abs(bb1.get_center()[0] - bb2.get_center()[0]) < bb1.w / 2) and
-            (abs(bb1.get_center()[1] - bb2.get_center()[1]) < bb1.h / 2))
+
+    center1_x, center1_y = bb1.center
+    center2_x, center2_y = bb2.center
+    return ((abs(center1_x - center2_x) < bb1.w / 2) and
+            (abs(center1_y - center2_y) < bb1.h / 2))
 
 
 def intersection_area(bb1, bb2):
@@ -75,15 +81,17 @@ def intersection_area(bb1, bb2):
 
 
 def have_intersection(bb1, bb2):
-    
-    # check if two bounding boxes have an intersection
-
+    """
+    Check if two bounding boxes have an intersection.
+    """
     return intersection_area(bb1, bb2) > 0
 
 
 def pts_to_bb(pts):
 
-    # converts coordinates or corners to Bb
+    """
+    Converts coordinates or corners to a BoundingBox object.
+    """
 
     x = min(pts[0][0], pts[1][0], pts[2][0], pts[3][0]) 
     y = min(pts[0][1], pts[1][1], pts[2][1], pts[3][1]) 
