@@ -19,10 +19,7 @@ def draw_bbox(img, bbox, male_gender, interest):
 
 
 def put_info(img, bbox, person_id, age):
-    try:
-        string = 'id_%d age=%d' % (person_id, int(age))
-    except:
-        string = 'id_%d ' % person_id
+    string = 'id_%d age=%d' % (person_id, int(age))
     ltopx = int(bbox.x)
     ltopy = int(bbox.y)
     cv2.putText(img, string, (ltopx, ltopy), 1, 1, (0, 0, 0), 1, cv2.LINE_AA)
@@ -57,9 +54,9 @@ def visualize(people_df, input_videofile, output_videofile, frames_limit, detect
 
     while cur_frame_num < frames_limit:
         ret, frame = input_video.read()
+        last_detection_frame_num = detection_step * (cur_frame_num // detection_step)
         output_video.write(draw_bboxes(frame,
-                                       people_df[people_df['frame'] == detection_step *
-                                                 (cur_frame_num // detection_step)]))
+                                       people_df[people_df['frame'] == last_detection_frame_num]))
         cur_frame_num += 1
 
     output_video.release()

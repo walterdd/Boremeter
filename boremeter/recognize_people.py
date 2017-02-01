@@ -86,7 +86,7 @@ def recognize_people(detected_faces, tmp_dir, frames_limit, caffe_models_path, r
             ages_sum, count = ages[detected_faces['person_id'][i]]
             detected_faces.loc[i, 'age'] = ages_sum / count
 
-        except:
+        except KeyError:
             detected_faces.loc[i, 'age'] = 25  # mean? median?
 
     # recognize gender if frame_id % recognition_step == 0
@@ -117,7 +117,7 @@ def recognize_people(detected_faces, tmp_dir, frames_limit, caffe_models_path, r
         try:
             detected_faces.loc[i, 'gender'] = 'Male' if float(genders[detected_faces['person_id'][i]][0]) / \
                                               genders[detected_faces['person_id'][i]][1] > 0.5 else 'Female'
-        except:
+        except KeyError:
             detected_faces.loc[i, 'gender'] = 'Male'
 
     face_detector = cv2.CascadeClassifier(DETECTOR_CONFIG['VJ_cascade_path'])
