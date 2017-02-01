@@ -25,19 +25,19 @@ class Recognizer:
     def __del__(self):
         del self.net
 
-    def predict(self, x, batch=False):
-        return self.net.predict(x, oversample=False) if batch else self.net.predict([x], oversample=False)
+    def predict(self, x):
+        return self.net.predict([x], oversample=False)
 
 
 class AgeRecognizer(Recognizer):
-    def predict(self, x, batch=False):
-        return Recognizer.predict(self, x, batch=batch)[0].argmax()
+    def predict(self, x):
+        return Recognizer.predict(self, x)[0].argmax()
 
 
 class GenderRecognizer(Recognizer):
-    def predict(self, x, batch=False):
+    def predict(self, x):
         genders = ['Female', 'Male']
-        return genders[Recognizer.predict(self, x, batch=batch)[0].argmax()]
+        return genders[Recognizer.predict(self, x)[0].argmax()]
 
 
 def make_image_name(frame_num, person_id):
@@ -87,7 +87,7 @@ def recognize_people(detected_faces, tmp_dir, frames_limit, caffe_models_path, r
             detected_faces.loc[i, 'age'] = ages_sum / count
 
         except:
-            detected_faces.loc[i, 'age'] = None  # mean? median?
+            detected_faces.loc[i, 'age'] = 25  # mean? median?
 
     # recognize gender if frame_id % recognition_step == 0
 
@@ -109,7 +109,7 @@ def recognize_people(detected_faces, tmp_dir, frames_limit, caffe_models_path, r
             else:
                 genders[detected_faces['person_id'][i]] = [int(detected_faces.loc[i, 'gender'] == 'Male'), 1]
 
-    del gender_recognizer # deleting net to clean the memory
+    del gender_recognizer  # deleting net to clean the memory
     gc.collect()
 
     for i in tqdm(detected_faces.index):

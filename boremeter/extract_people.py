@@ -18,19 +18,14 @@ def crop_faces(img, frame_num, bboxes, tmp_dir):
 
 def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
 
-    # csvfile = open(os.path.join(tmp_dir, 'faces.csv'), 'wb')
-    # writer = csv.writer(csvfile, delimiter=',', quoting=csv.QUOTE_MINIMAL)
-    # writer.writerow(['frame', 'person_id', 'x', 'y', 'w', 'h'])
-
-    df = pd.DataFrame(columns=['frame', 'person_id', 'x', 'y', 'w', 'h'])
-
+    faces_df = pd.DataFrame(columns=['frame', 'person_id', 'x', 'y', 'w', 'h'])
 
     input_video = cv2.VideoCapture(video_file_path)
     has_more_frames, frame = input_video.read()
 
     initial_timeout = 50    # number of frames to keep the bbox
     cur_frame_num = 0
-    prev_faces = {}         # bboxes from the previous frame
+    old_bboxes_by_id = {}         # bboxes from the previous frame
     max_id = 0              # last given id
     timeouts = {}           # current timeouts for bboxes
 
@@ -43,57 +38,52 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
         if not has_more_frames:
             break
 
-        cur_faces = {}  # bboxes by ids
+        new_bboxes_by_id = {}
         found_bboxes = detect_faces(frame)  # array of bboxes
-        tmp_faces = {}  # bboxes by ids
+        tracked_faces = {}
         face_ids_to_delete = []  # array of ids
 
         for bbox in found_bboxes:
-            cur_faces[max_id] = bbox
+            new_bboxes_by_id[max_id] = bbox
             timeouts[max_id] = initial_timeout
             max_id += 1
 
-        for cur_id in cur_faces:
-            found = 0
-            for prev_id in prev_faces:
-                if timeouts[prev_id] > 0:
-                    if not found and bboxes_are_close(prev_faces[prev_id], cur_faces[cur_id]):
-                        tmp_faces[prev_id] = cur_faces[cur_id]
-                        timeouts[prev_id] = initial_timeout
-                        found = 1
-                        face_ids_to_delete.append(cur_id)
-                    elif have_intersection(prev_faces[prev_id], cur_faces[cur_id]):
-                        face_ids_to_delete.append(cur_id)
+        for new_id, new_bbox in new_bboxes_by_id.iteritems():
+            face_found = False
+            for old_id, old_bbox in old_bboxes_by_id.iteritems():
+                if timeouts[old_id] > 0:
+                    if not face_found and bboxes_are_close(old_bbox, new_bbox):
+                        tracked_faces[old_id] = new_bbox
+                        timeouts[old_id] = initial_timeout
+                        face_found = True
+                        face_ids_to_delete.append(new_id)
+                    elif have_intersection(old_bbox, new_bbox):
+                        face_ids_to_delete.append(new_id)
 
-        for d in face_ids_to_delete:
-            del cur_faces[d]
+        for face_id in face_ids_to_delete:
+            del new_bboxes_by_id[face_id]
 
-        for tmp_face in tmp_faces:
-            cur_faces[tmp_face] = tmp_faces[tmp_face]
+        for tracked_face in tracked_faces:
+            new_bboxes_by_id[tracked_face] = tracked_faces[tracked_face]
 
-        for prev_id in prev_faces:
-            if timeouts[prev_id] > 0 and prev_id not in tmp_faces:
-                timeouts[prev_id] -= 1
-                cur_faces[prev_id] = prev_faces[prev_id].copy()
+        for old_id in old_bboxes_by_id:
+            if timeouts[old_id] > 0 and old_id not in tracked_faces:
+                timeouts[old_id] -= 1
+                new_bboxes_by_id[old_id] = old_bboxes_by_id[old_id].copy()
 
-        crop_faces(frame, cur_frame_num, cur_faces, tmp_dir)
-        for person_id in cur_faces:
-            face = cur_faces[person_id]
-            df = df.append({'frame':cur_frame_num, 'person_id':person_id, 'x':face.x, 'y':face.y, 'w':face.w, 'h':face.h},
-                      ignore_index=True)
-            # writer.writerow([
-            #     cur_frame_num,
-            #     person_id,
-            #     face.x,
-            #     face.y,
-            #     face.w,
-            #     face.h
-            # ])
+        crop_faces(frame, cur_frame_num, new_bboxes_by_id, tmp_dir)
+        for person_id in new_bboxes_by_id:
+            face = new_bboxes_by_id[person_id]
+            faces_df = faces_df.append({'frame': cur_frame_num,
+                                        'person_id': person_id,
+                                        'x': face.x,
+                                        'y': face.y,
+                                        'w': face.w,
+                                        'h': face.h},
+                                       ignore_index=True,)
 
-        prev_faces = cur_faces.copy()
+        old_bboxes_by_id = new_bboxes_by_id.copy()
         cur_frame_num += 1
         has_more_frames, frame = input_video.read()
 
-    # csvfile.close()
-    df.to_csv('f.csv')
-    return df
+    return faces_df

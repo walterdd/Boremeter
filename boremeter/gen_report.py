@@ -57,7 +57,7 @@ def main():
 
         print ('Extracting people.....')
         extracted_faces = extract_people.extract_faces(args.file.name, frames_limit=args.frames_limit,
-                                     tmp_dir=tmp_dir, detection_step=DETECTION_STEP)
+                                                       tmp_dir=tmp_dir, detection_step=DETECTION_STEP)
 
         print ('Extracting statistics.....')
         detected_faces_df = recognize_people.recognize_people(detected_faces=extracted_faces,
