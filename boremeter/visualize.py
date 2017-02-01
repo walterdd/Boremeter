@@ -14,7 +14,7 @@ Visualized bounding boxes:
 
 def draw_bbox(img, bbox, male_gender, interest):
     color = (255, 0, 0) if male_gender else (0, 0, 255)
-    cv2.rectangle(img, (bbox.x, bbox.y), (bbox.right, bbox.bottom), color, 1 + 2 * interest)
+    cv2.rectangle(img, (int(bbox.x), int(bbox.y)), (int(bbox.right), int(bbox.bottom)), color, 1 + 2 * interest)
     return img
 
 
@@ -23,8 +23,10 @@ def put_info(img, bbox, person_id, age):
         string = 'id_%d age=%d' % (person_id, int(age))
     except:
         string = 'id_%d ' % person_id
-    cv2.putText(img, string, (bbox.x, bbox.y), 1, 1, (0, 0, 0), 1, cv2.LINE_AA)
-    cv2.putText(img, string, (bbox.x - 1, bbox.y - 1), 1, 1, (255, 255, 255), 1, cv2.LINE_AA)
+    ltopx = int(bbox.x)
+    ltopy = int(bbox.y)
+    cv2.putText(img, string, (ltopx, ltopy), 1, 1, (0, 0, 0), 1, cv2.LINE_AA)
+    cv2.putText(img, string, (ltopx - 1, ltopy - 1), 1, 1, (255, 255, 255), 1, cv2.LINE_AA)
     return img
 
 

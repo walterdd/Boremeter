@@ -43,7 +43,8 @@ class GenderRecognizer(Recognizer):
 def make_image_name(frame_num, person_id):
     return 'frame%dperson%d.jpg' % (frame_num, person_id)
 
-def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step):
+
+def recognize_people(detected_faces, tmp_dir, frames_limit, caffe_models_path, recognition_step):
     # load pre-trained nets
 
     age_recognizer = AgeRecognizer(caffe_models_path, 'age.caffemodel', 'age.prototxt')
@@ -51,7 +52,7 @@ def recognize_people(tmp_dir, frames_limit, caffe_models_path, recognition_step)
     # read table of detected people
     # populate age, gender and interest with zeros for the moment
 
-    detected_faces = pd.read_csv(os.path.join(tmp_dir, 'faces.csv'))
+    # detected_faces = pd.read_csv(os.path.join(tmp_dir, 'faces.csv'))
     detected_faces.loc[:, 'age'] = np.zeros(detected_faces.shape[0])
     detected_faces.loc[:, 'gender'] = np.zeros(detected_faces.shape[0])
     detected_faces.loc[:, 'interest'] = np.zeros(detected_faces.shape[0])

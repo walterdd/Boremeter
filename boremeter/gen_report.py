@@ -56,11 +56,12 @@ def main():
     with temporary_directory() as tmp_dir:
 
         print ('Extracting people.....')
-        extract_people.extract_faces(args.file.name, frames_limit=args.frames_limit,
+        extracted_faces = extract_people.extract_faces(args.file.name, frames_limit=args.frames_limit,
                                      tmp_dir=tmp_dir, detection_step=DETECTION_STEP)
 
         print ('Extracting statistics.....')
-        detected_faces_df = recognize_people.recognize_people(tmp_dir=tmp_dir,
+        detected_faces_df = recognize_people.recognize_people(detected_faces=extracted_faces,
+                                                              tmp_dir=tmp_dir,
                                                               frames_limit=args.frames_limit,
                                                               caffe_models_path=caffe_models_path,
                                                               recognition_step=RECOGNITION_STEP,)
