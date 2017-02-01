@@ -1,6 +1,6 @@
 import cv2
 
-from bounding_boxes import BoundingBox
+from .bounding_boxes import BoundingBox
 
 
 """

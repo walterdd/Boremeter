@@ -4,8 +4,8 @@ import csv
 import pandas as pd
 import cv2
 
-from detector import detect_faces
-from bounding_boxes import have_intersection, bboxes_are_close
+from .detector import detect_faces
+from .bounding_boxes import have_intersection, bboxes_are_close
 
 
 def crop_faces(img, frame_num, bboxes, tmp_dir):
@@ -72,6 +72,7 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
                 new_bboxes_by_id[old_id] = old_bboxes_by_id[old_id].copy()
 
         crop_faces(frame, cur_frame_num, new_bboxes_by_id, tmp_dir)
+
         for person_id in new_bboxes_by_id:
             face = new_bboxes_by_id[person_id]
             faces_df = faces_df.append({'frame': cur_frame_num,

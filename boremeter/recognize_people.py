@@ -7,10 +7,10 @@ import cv2
 import caffe
 from tqdm import tqdm
 
-from detector import DETECTOR_CONFIG
+from .detector import DETECTOR_CONFIG
 
 
-class Recognizer:
+class FaceRecognizer:
     def __init__(self, models_folder, caffe_model, prototype):
         model = os.path.join(models_folder, prototype)
         pretrained_weights = os.path.join(models_folder, caffe_model)
@@ -29,15 +29,15 @@ class Recognizer:
         return self.net.predict([x], oversample=False)
 
 
-class AgeRecognizer(Recognizer):
+class AgeRecognizer(FaceRecognizer):
     def predict(self, x):
-        return Recognizer.predict(self, x)[0].argmax()
+        return FaceRecognizer.predict(self, x)[0].argmax()
 
 
-class GenderRecognizer(Recognizer):
+class GenderRecognizer(FaceRecognizer):
     def predict(self, x):
         genders = ['Female', 'Male']
-        return genders[Recognizer.predict(self, x)[0].argmax()]
+        return genders[FaceRecognizer.predict(self, x)[0].argmax()]
 
 
 def make_image_name(frame_num, person_id):
@@ -120,15 +120,15 @@ def recognize_people(detected_faces, tmp_dir, frames_limit, caffe_models_path, r
         except:
             detected_faces.loc[i, 'gender'] = 'Male'
 
-    cc = cv2.CascadeClassifier(DETECTOR_CONFIG['VJ_cascade_path'])
+    face_detector = cv2.CascadeClassifier(DETECTOR_CONFIG['VJ_cascade_path'])
 
-    for i in tqdm(detected_faces.index):
-        if detected_faces['frame'][i] > frames_limit:
+    for i, face_row in tqdm(detected_faces.iterrows()):
+        if face_row['frame'] >= frames_limit:
             break
-        im = cv2.imread(os.path.join(tmp_dir, make_image_name(detected_faces['frame'][i],
-                                                              detected_faces['person_id'][i])))
+
+        im = cv2.imread(os.path.join(tmp_dir, make_image_name(face_row['frame'], face_row['person_id'])))
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
-        detected_faces.loc[i, 'interest'] = len(cc.detectMultiScale(gray, 1.1, 1)) > 0
+        detected_faces.loc[i, 'interest'] = len(face_detector.detectMultiScale(gray, 1.1, 1)) > 0
 
     detected_faces = detected_faces.fillna(np.nan)
     return detected_faces

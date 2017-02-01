@@ -34,7 +34,7 @@
         </div>
         <div class = 'col-md-7'> 
             Ages:
-            <div id='ages_hist'>
+            <div id='age_hist'>
             </div>
         </div>
     </div>
@@ -42,7 +42,7 @@
     <h3 align="center">
         Time series of interest
     </h3>
-    <div id='time_row' >
+    <div id='time_series' >
     </div>
 
 
@@ -55,7 +55,7 @@
 
 <script>
 
-    time_row = document.getElementById('time_row');
+    time_row = document.getElementById('time_series');
 
     Plotly.plot( time_row, [{
         x: {{ time_arr }},
@@ -80,7 +80,7 @@
       }
     ];
 
-    Plotly.newPlot('ages_hist', data);
+    Plotly.newPlot('age_hist', data);
 
 </script>
 

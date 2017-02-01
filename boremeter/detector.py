@@ -1,8 +1,7 @@
 import cv2
-import numpy as np
 import pkg_resources
 
-from bounding_boxes import BoundingBox
+from .bounding_boxes import BoundingBox
 
 DETECTOR_CONFIG = {
     'VJ_cascade_path': pkg_resources.resource_filename('boremeter',

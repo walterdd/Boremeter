@@ -6,14 +6,17 @@ from jinja2 import Environment, PackageLoader, select_autoescape
 
 import extract_people
 import recognize_people
-from visualize import visualize
-from util import temporary_directory
+from .visualize import visualize
+from .util import temporary_directory
 
 DETECTION_STEP = 3
 RECOGNITION_STEP = DETECTION_STEP * 6
 
 
-def gen_html(filename, men_pc, ages, time_arr, attention_arr):
+def gen_html(filename, faces_df):
+
+    men_pc, ages, frames_nums, attention_values = recognize_people.get_stats(faces_df)
+
     j2_env = Environment(
         loader=PackageLoader('boremeter', 'templates'),
         autoescape=select_autoescape(['html']),
@@ -25,8 +28,8 @@ def gen_html(filename, men_pc, ages, time_arr, attention_arr):
         html_report = template.render(
             men_pc=men_pc,
             ages=str(ages.tolist()),
-            time_arr=str(time_arr.tolist()),
-            attention_arr=str(attention_arr.tolist()),
+            time_arr=str(frames_nums.tolist()),
+            attention_arr=str(attention_values.tolist()),
         )
         fh.write(html_report)
 
@@ -60,21 +63,21 @@ def main():
                                                        tmp_dir=tmp_dir, detection_step=DETECTION_STEP)
 
         print ('Extracting statistics.....')
-        detected_faces_df = recognize_people.recognize_people(detected_faces=extracted_faces,
-                                                              tmp_dir=tmp_dir,
-                                                              frames_limit=args.frames_limit,
-                                                              caffe_models_path=caffe_models_path,
-                                                              recognition_step=RECOGNITION_STEP,)
+        recognized_faces_df = recognize_people.recognize_people(detected_faces=extracted_faces,
+                                                                tmp_dir=tmp_dir,
+                                                                frames_limit=args.frames_limit,
+                                                                caffe_models_path=caffe_models_path,
+                                                                recognition_step=RECOGNITION_STEP,)
 
-        detected_faces_df.to_csv(args.output_csv.name)
+        recognized_faces_df.to_csv(args.output_csv.name)
 
         print ('Generating html.....')
-        men_pc, ages, frames_id, attention_pc = recognize_people.get_stats(detected_faces_df)
-        gen_html(args.output_html.name, men_pc, ages, frames_id, attention_pc)
+
+        gen_html(args.output_html.name, recognized_faces_df)
 
         if args.output_video is not None:
             print ('Visualizing.....')
-            visualize(detected_faces_df, args.file.name, args.output_video.name, frames_limit=args.frames_limit,
+            visualize(recognized_faces_df, args.file.name, args.output_video.name, frames_limit=args.frames_limit,
                       detection_step=DETECTION_STEP)
 
 
