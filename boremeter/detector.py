@@ -35,10 +35,11 @@ def detect_faces(img, raw_detector='VJ'):
         raw_faces = get_faces_vj(img, detector)
         return raw_faces
 
-    if raw_detector == 'dlib':
+    elif raw_detector == 'dlib':
         raise NotImplementedError()
 
-    if raw_detector == 'cnn':
+    elif raw_detector == 'cnn':
         raise NotImplementedError()
 
-    raise RuntimeError('Detection method %s is not supported' % raw_detector)
+    else:
+        raise RuntimeError('Detection method %s is not supported' % raw_detector)
