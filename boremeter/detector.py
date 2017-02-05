@@ -19,10 +19,12 @@ def get_faces_vj(img, cascade):
 
 
 def filter_faces(bboxes):
+    # TODO: implement function which takes bboxes on a frame and returns only those which seem to contain a face
     raise NotImplementedError()
 
 
 def check_faces(bboxes):
+    # TODO: implement function which checks if there are faces in filtered bboxes
     raise NotImplementedError()
 
 
@@ -31,7 +33,12 @@ def detect_faces(img, raw_detector='VJ'):
     if raw_detector == 'VJ':
         detector = cv2.CascadeClassifier(DETECTOR_CONFIG['VJ_cascade_path'])
         raw_faces = get_faces_vj(img, detector)
-    else:
-        raise RuntimeError('Detection method %s is not supported' % raw_detector)
+        return raw_faces
 
-    return raw_faces
+    if raw_detector == 'dlib':
+        raise NotImplementedError()
+
+    if raw_detector == 'cnn':
+        raise NotImplementedError()
+
+    raise RuntimeError('Detection method %s is not supported' % raw_detector)

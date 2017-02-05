@@ -55,8 +55,8 @@ def visualize(people_df, input_videofile, output_videofile, frames_limit, detect
     while cur_frame_num < frames_limit:
         ret, frame = input_video.read()
         last_detection_frame_num = detection_step * (cur_frame_num // detection_step)
-        output_video.write(draw_bboxes(frame,
-                                       people_df[people_df['frame'] == last_detection_frame_num]))
+        df_slice = people_df[people_df['frame'] == last_detection_frame_num]
+        output_video.write(draw_bboxes(frame, df_slice))
         cur_frame_num += 1
 
     output_video.release()

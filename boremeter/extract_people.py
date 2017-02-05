@@ -17,7 +17,6 @@ def crop_faces(img, frame_num, bboxes, tmp_dir):
 
 
 def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
-
     faces_df = pd.DataFrame(columns=['frame', 'person_id', 'x', 'y', 'w', 'h'])
 
     input_video = cv2.VideoCapture(video_file_path)
@@ -35,7 +34,7 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
             has_more_frames, frame = input_video.read()
             cur_frame_num += 1
 
-        if not has_more_frames:
+        if not has_more_frames or cur_frame_num >= frames_limit:
             break
 
         new_bboxes_by_id = {}
@@ -69,7 +68,7 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
         for old_id in old_bboxes_by_id:
             if timeouts[old_id] > 0 and old_id not in tracked_faces:
                 timeouts[old_id] -= 1
-                new_bboxes_by_id[old_id] = old_bboxes_by_id[old_id].copy()
+                new_bboxes_by_id[old_id] = old_bboxes_by_id[old_id]
 
         crop_faces(frame, cur_frame_num, new_bboxes_by_id, tmp_dir)
 
@@ -83,7 +82,7 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
                                         'h': face.h},
                                        ignore_index=True,)
 
-        old_bboxes_by_id = new_bboxes_by_id.copy()
+        old_bboxes_by_id = new_bboxes_by_id
         cur_frame_num += 1
         has_more_frames, frame = input_video.read()
 

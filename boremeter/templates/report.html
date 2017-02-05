@@ -55,9 +55,9 @@
 
 <script>
 
-    time_row = document.getElementById('time_series');
+    time_series = document.getElementById('time_series');
 
-    Plotly.plot( time_row, [{
+    Plotly.plot( time_series, [{
         x: {{ time_arr }},
         y: {{ attention_arr }} }], {
     margin: { t: 0 } } );

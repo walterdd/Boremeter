@@ -4,8 +4,8 @@ import argparse
 
 from jinja2 import Environment, PackageLoader, select_autoescape
 
-import extract_people
-import recognize_people
+from . import extract_people
+from . import recognize_people
 from .visualize import visualize
 from .util import temporary_directory
 
@@ -13,8 +13,7 @@ DETECTION_STEP = 3
 RECOGNITION_STEP = DETECTION_STEP * 6
 
 
-def gen_html(filename, faces_df):
-
+def gen_html(report_file, faces_df):
     men_pc, ages, frames_nums, attention_values = recognize_people.get_stats(faces_df)
 
     j2_env = Environment(
@@ -24,14 +23,13 @@ def gen_html(filename, faces_df):
 
     template = j2_env.get_template('report.html')
 
-    with open(filename, 'wb') as fh:
-        html_report = template.render(
-            men_pc=men_pc,
-            ages=str(ages.tolist()),
-            time_arr=str(frames_nums.tolist()),
-            attention_arr=str(attention_values.tolist()),
-        )
-        fh.write(html_report)
+    html_report = template.render(
+        men_pc=men_pc,
+        ages=str(ages.tolist()),
+        time_arr=str(frames_nums.tolist()),
+        attention_arr=str(attention_values.tolist()),
+    )
+    report_file.write(html_report)
 
 
 def main():
@@ -58,27 +56,38 @@ def main():
     # create temporary directory in the current directory where cropped faces will be stored
     with temporary_directory() as tmp_dir:
 
-        print ('Extracting people.....')
-        extracted_faces = extract_people.extract_faces(args.file.name, frames_limit=args.frames_limit,
-                                                       tmp_dir=tmp_dir, detection_step=DETECTION_STEP)
+        print ('Extracting people')
+        extracted_faces = extract_people.extract_faces(
+            args.file.name,
+            frames_limit=args.frames_limit,
+            tmp_dir=tmp_dir,
+            detection_step=DETECTION_STEP,
+        )
 
-        print ('Extracting statistics.....')
-        recognized_faces_df = recognize_people.recognize_people(detected_faces=extracted_faces,
-                                                                tmp_dir=tmp_dir,
-                                                                frames_limit=args.frames_limit,
-                                                                caffe_models_path=caffe_models_path,
-                                                                recognition_step=RECOGNITION_STEP,)
+        print ('Extracting statistics')
+        recognized_faces_df = recognize_people.recognize_faces(
+            detected_faces=extracted_faces,
+            tmp_dir=tmp_dir,
+            frames_limit=args.frames_limit,
+            caffe_models_path=caffe_models_path,
+            recognition_step=RECOGNITION_STEP,
+        )
 
-        recognized_faces_df.to_csv(args.output_csv.name)
+        print ('Generating html')
+        gen_html(args.output_html, recognized_faces_df)
 
-        print ('Generating html.....')
-
-        gen_html(args.output_html.name, recognized_faces_df)
+        if args.output_csv is not None:
+            recognized_faces_df.to_csv(args.output_csv)
 
         if args.output_video is not None:
-            print ('Visualizing.....')
-            visualize(recognized_faces_df, args.file.name, args.output_video.name, frames_limit=args.frames_limit,
-                      detection_step=DETECTION_STEP)
+            print ('Visualizing')
+            visualize(
+                people_df=recognized_faces_df,
+                input_videofile=args.file.name,
+                output_videofile=args.output_video.name,
+                frames_limit=args.frames_limit,
+                detection_step=DETECTION_STEP,
+            )
 
 
 if __name__ == '__main__':

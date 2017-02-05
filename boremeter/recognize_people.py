@@ -15,12 +15,13 @@ class FaceRecognizer:
         model = os.path.join(models_folder, prototype)
         pretrained_weights = os.path.join(models_folder, caffe_model)
 
-        self.net = caffe.Classifier(model,
-                                    pretrained_weights,
-                                    channel_swap=(2, 1, 0),
-                                    raw_scale=255,
-                                    image_dims=(256, 256),
-                                    )
+        self.net = caffe.Classifier(
+            model,
+            pretrained_weights,
+            channel_swap=(2, 1, 0),
+            raw_scale=255,
+            image_dims=(256, 256),
+        )
 
     def __del__(self):
         del self.net
@@ -44,7 +45,7 @@ def make_image_name(frame_num, person_id):
     return 'frame%dperson%d.jpg' % (frame_num, person_id)
 
 
-def recognize_people(detected_faces, tmp_dir, frames_limit, caffe_models_path, recognition_step):
+def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, recognition_step):
     # load pre-trained nets
 
     age_recognizer = AgeRecognizer(caffe_models_path, 'age.caffemodel', 'age.prototxt')
@@ -61,29 +62,29 @@ def recognize_people(detected_faces, tmp_dir, frames_limit, caffe_models_path, r
 
     # recognize age if frame_id % recognition_step == 0
 
-    for i in tqdm(detected_faces.index):
-        if detected_faces['frame'][i] > frames_limit:
+    for i, face_row in tqdm(detected_faces.iterrows()):
+        if face_row['frame'] > frames_limit:
             break
-        if detected_faces['frame'][i] % recognition_step == 0:
-            input_image = caffe.io.load_image(os.path.join(tmp_dir,
-                                                           make_image_name(detected_faces['frame'][i],
-                                                                           detected_faces['person_id'][i])))
+        if face_row['frame'] % recognition_step == 0:
+            im_name = make_image_name(face_row['frame'], face_row['person_id'])
+            full_file_name = os.path.join(tmp_dir, im_name)
+            input_image = caffe.io.load_image(full_file_name)
 
             detected_faces.loc[i, 'age'] = age_recognizer.predict(input_image)
 
-            if detected_faces['person_id'][i] in ages:
-                ages[detected_faces['person_id'][i]][0] += detected_faces.loc[i, 'age']
-                ages[detected_faces['person_id'][i]][1] += 1
+            if face_row['person_id'] in ages:
+                ages[face_row['person_id']][0] += face_row['age']
+                ages[face_row['person_id']][1] += 1
             else:
-                ages[detected_faces['person_id'][i]] = [detected_faces.loc[i, 'age'], 1]
+                ages[face_row['person_id']] = [face_row['age'], 1]
 
     del age_recognizer  # deleting net to clean the memory
     gc.collect()
 
-    for i in detected_faces.index:
+    for i, face_row in detected_faces.iterrows():
 
         try:
-            ages_sum, count = ages[detected_faces['person_id'][i]]
+            ages_sum, count = ages[face_row['person_id']]
             detected_faces.loc[i, 'age'] = ages_sum / count
 
         except KeyError:
@@ -94,29 +95,29 @@ def recognize_people(detected_faces, tmp_dir, frames_limit, caffe_models_path, r
     gender_recognizer = GenderRecognizer(caffe_models_path, 'gender.caffemodel', 'gender.prototxt')
     genders = {}
 
-    for i in tqdm(detected_faces.index):
-        if detected_faces['frame'][i] > frames_limit:
+    for i, face_row in tqdm(detected_faces.iterrows()):
+        if face_row['frame'] > frames_limit:
             break
-        if detected_faces['frame'][i] % recognition_step == 0:
-            input_image = caffe.io.load_image(os.path.join(tmp_dir,
-                                                           make_image_name(detected_faces['frame'][i],
-                                                                           detected_faces['person_id'][i])))
+        if face_row['frame'] % recognition_step == 0:
+            im_name = make_image_name(face_row['frame'], face_row['person_id'])
+            full_file_name = os.path.join(tmp_dir, im_name)
+            input_image = caffe.io.load_image(full_file_name)
 
-            detected_faces.loc[i, 'gender'] = gender_recognizer.predict(input_image)
-            if detected_faces['person_id'][i] in genders:
-                genders[detected_faces['person_id'][i]][0] += int(detected_faces.loc[i, 'gender'] == 'Male')
-                genders[detected_faces['person_id'][i]][1] += 1
+            face_row['gender'] = gender_recognizer.predict(input_image)
+            if face_row['person_id'] in genders:
+                genders[face_row['person_id']][0] += int(face_row['gender'] == 'Male')
+                genders[face_row['person_id']][1] += 1
             else:
-                genders[detected_faces['person_id'][i]] = [int(detected_faces.loc[i, 'gender'] == 'Male'), 1]
+                genders[face_row['person_id']] = [int(face_row['gender'] == 'Male'), 1]
 
     del gender_recognizer  # deleting net to clean the memory
     gc.collect()
 
-    for i in tqdm(detected_faces.index):
+    for i, face_row in detected_faces.iterrows():
 
         try:
-            detected_faces.loc[i, 'gender'] = 'Male' if float(genders[detected_faces['person_id'][i]][0]) / \
-                                              genders[detected_faces['person_id'][i]][1] > 0.5 else 'Female'
+            detected_faces.loc[i, 'gender'] = 'Male' if (float(genders[face_row['person_id']][0]) /
+                                                                 genders[face_row['person_id']][1]) > 0.5 else 'Female'
         except KeyError:
             detected_faces.loc[i, 'gender'] = 'Male'
 
@@ -140,8 +141,8 @@ def get_stats(detected_faces):
     ages = recognized_faces['age']
 
     # percentage of interested faces in frames
-    interested_pc = np.array(detected_faces[['frame', 'interest']].groupby('frame').sum()['interest'], dtype=float) / \
-        np.array(detected_faces[['frame', 'interest']].groupby('frame').size()) * 100
+    interested_pc = (np.array(detected_faces[['frame', 'interest']].groupby('frame').sum()['interest'], dtype=float) /
+                     np.array(detected_faces[['frame', 'interest']].groupby('frame').size()) * 100)
 
     frames_id = np.unique(detected_faces['frame'])
     return men_pc, ages, frames_id, interested_pc
