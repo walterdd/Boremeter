@@ -1,63 +1,45 @@
 import cv2
-import numpy as np
 import pkg_resources
 
-global_config = {
-    'VJ_cascade_path' : pkg_resources.resource_filename('boremeter', 'cv_haar_cascades/haarcascade_frontalface_default.xml'),
-    'cascade_params'  : [1.15, 3],
+from .bounding_boxes import BoundingBox
+
+DETECTOR_CONFIG = {
+    'VJ_cascade_path': pkg_resources.resource_filename('boremeter',
+                                                       'cv_haar_cascades/haarcascade_frontalface_default.xml'),
+    'cascade_params':  [1.3, 4],
 }
 
 
-def get_faces_VJ(img, cascade):
-
-    max_scale, min_neighbors = global_config['cascade_params']
+def get_faces_vj(img, cascade):
+    max_scale, min_neighbors = DETECTOR_CONFIG['cascade_params']
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    return cascade.detectMultiScale(gray, max_scale, min_neighbors)
+    detected = cascade.detectMultiScale(gray, max_scale, min_neighbors)
+    bboxes = [BoundingBox(*face) for face in detected]
+    return bboxes
 
 
-def filter_faces(bbs):
+def filter_faces(bboxes):
+    # TODO: implement function which takes bboxes on a frame and returns only those which seem to contain a face
+    raise NotImplementedError()
 
-    return bbs
 
-
-def check_faces(bbs):
-
-    return bbs
+def check_faces(bboxes):
+    # TODO: implement function which checks if there are faces in filtered bboxes
+    raise NotImplementedError()
 
 
 def detect_faces(img, raw_detector='VJ'):
 
-    raw_faces = np.array([])
-
     if raw_detector == 'VJ':
-        detector = cv2.CascadeClassifier(global_config['VJ_cascade_path'])
-        raw_faces = get_faces_VJ(img, detector)
+        detector = cv2.CascadeClassifier(DETECTOR_CONFIG['VJ_cascade_path'])
+        raw_faces = get_faces_vj(img, detector)
+        return raw_faces
 
-    filtered_faces = filter_faces(raw_faces)
-    checked_faces = check_faces(filtered_faces)
+    elif raw_detector == 'dlib':
+        raise NotImplementedError()
 
-    return checked_faces
+    elif raw_detector == 'cnn':
+        raise NotImplementedError()
 
-
-def detect_faces_on_video(video_file_path, detection_step=1, frames_limit=200):
-
-    input_video = cv2.VideoCapture(video_file_path)
-
-    cur_frame = 0    
-    frames = {}
-
-    ret = True
-
-    while cur_frame < frames_limit and ret:
-        ret, frame = input_video.read() 
-
-        frames[cur_frame] = [0,1]
-        frames[cur_frame][0] = frame
-
-        if cur_frame % detection_step == 0:
-            frames[cur_frame][1] = detect_faces(frame)
-        else:
-            frames[cur_frame][1] = np.array([])
-
-        cur_frame += 1
-    return frames
+    else:
+        raise RuntimeError('Detection method %s is not supported' % raw_detector)
