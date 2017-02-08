@@ -56,8 +56,9 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
                         timeouts[old_id] = initial_timeout
                         face_found = True
                         face_ids_to_delete.append(new_id)
-                    elif have_intersection(old_bbox, new_bbox):
+                    elif not face_found and have_intersection(old_bbox, new_bbox):
                         face_ids_to_delete.append(new_id)
+                        face_found = True
 
         for face_id in face_ids_to_delete:
             del new_bboxes_by_id[face_id]
