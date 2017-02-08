@@ -59,8 +59,8 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
                     elif not face_found and have_intersection(old_bbox, new_bbox):
                         face_ids_to_delete.append(new_id)
                         face_found = True
+
         for face_id in face_ids_to_delete:
-            print face_id,
             del new_bboxes_by_id[face_id]
 
         for tracked_face in tracked_faces:
