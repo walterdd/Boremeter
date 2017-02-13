@@ -62,7 +62,7 @@ def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, re
 
     # recognize age if frame_id % recognition_step == 0
 
-    for i, face_row in tqdm(detected_faces.iterrows()):
+    for i, face_row in tqdm(detected_faces.iterrows(), total=detected_faces.shape[0]):
         if face_row['frame'] > frames_limit:
             break
         if face_row['frame'] % recognition_step == 0:
@@ -95,7 +95,7 @@ def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, re
     gender_recognizer = GenderRecognizer(caffe_models_path, 'gender.caffemodel', 'gender.prototxt')
     genders = {}
 
-    for i, face_row in tqdm(detected_faces.iterrows()):
+    for i, face_row in tqdm(detected_faces.iterrows(), total=detected_faces.shape[0]):
         if face_row['frame'] > frames_limit:
             break
         if face_row['frame'] % recognition_step == 0:
@@ -123,7 +123,7 @@ def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, re
 
     face_detector = cv2.CascadeClassifier(DETECTOR_CONFIG['VJ_cascade_path'])
 
-    for i, face_row in tqdm(detected_faces.iterrows()):
+    for i, face_row in tqdm(detected_faces.iterrows(), total=detected_faces.shape[0]):
         if face_row['frame'] >= frames_limit:
             break
 
