@@ -30,7 +30,7 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
     timeouts = {}           # current timeouts for bboxes
 
     for cur_frame_num in tqdm(range(frames_limit)):
-	if not  has_more_frames:
+	if not has_more_frames:
 		break
 
         while cur_frame_num % detection_step != 0 and has_more_frames:
