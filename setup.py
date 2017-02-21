@@ -16,7 +16,7 @@ setup(
         "Jinja2",
         "tqdm",
     ],
-    package_data={'boremeter': ['cv_haar_cascades/*.xml']},
+    package_data={'boremeter': ['cv_haar_cascades/*.xml', 'templates/*.html']},
     include_package_data=True,
     entry_points={
           'console_scripts': [

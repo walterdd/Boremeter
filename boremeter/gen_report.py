@@ -3,6 +3,7 @@ import os
 import argparse
 
 from jinja2 import Environment, PackageLoader, select_autoescape
+import caffe
 
 from . import extract_people
 from . import recognize_people
@@ -45,6 +46,7 @@ def main():
                         help='path to output table with information about all detected faces')
     parser.add_argument('--caffe_models_path', default='/root/caffe/models', type=str,
                         help='path to directory with pre-trained caffe models')
+    parser.add_argument('--gpu', action='store_true', help='switch for gpu computation')
 
     args = parser.parse_args()
 
@@ -52,6 +54,11 @@ def main():
         raise argparse.ArgumentTypeError('minimum frames_limit is 3')
 
     caffe_models_path = os.environ.get('CAFFE_MODELS_PATH') or args.caffe_models_path
+    
+    if args.gpu:
+	caffe.set_mode_gpu()
+    else:
+	caffe.set_mode_cpu()
 
     # create temporary directory in the current directory where cropped faces will be stored
     with temporary_directory() as tmp_dir:

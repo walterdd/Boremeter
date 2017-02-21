@@ -3,6 +3,7 @@ import csv
 
 import pandas as pd
 import cv2
+from tqdm import tqdm
 
 from .detector import detect_faces
 from .bounding_boxes import have_intersection, bboxes_are_close
@@ -28,7 +29,9 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
     max_id = 0              # last given id
     timeouts = {}           # current timeouts for bboxes
 
-    while cur_frame_num < frames_limit and has_more_frames:
+    for cur_frame_num in tqdm(range(frames_limit)):
+	if not has_more_frames:
+		break
 
         while cur_frame_num % detection_step != 0 and has_more_frames:
             has_more_frames, frame = input_video.read()
