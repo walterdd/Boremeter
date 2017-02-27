@@ -117,7 +117,7 @@ def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, re
 
         try:
             detected_faces.loc[i, 'gender'] = 'Male' if (float(genders[face_row['person_id']][0]) /
-                                                                 genders[face_row['person_id']][1]) > 0.5 else 'Female'
+                                                         genders[face_row['person_id']][1]) > 0.5 else 'Female'
         except KeyError:
             detected_faces.loc[i, 'gender'] = 'Male'
 

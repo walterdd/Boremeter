@@ -42,7 +42,7 @@ def draw_bboxes(img, df):
     return img
 
 
-def visualize(people_df, input_videofile, output_videofile, frames_limit, detection_step):
+def visualize(people_df, input_videofile, output_videofile, frames_limit):
     input_video = cv2.VideoCapture(input_videofile)
     ret, frame = input_video.read()
     cur_frame_num = 0
