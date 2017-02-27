@@ -138,11 +138,12 @@ def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, re
 def get_stats(detected_faces):
     recognized_faces = detected_faces[(detected_faces['gender'] == 'Male') | (detected_faces['gender'] == 'Female')]
     men_pc = float((recognized_faces['gender'] == 'Male').sum()) / recognized_faces.shape[0]
-    ages = recognized_faces['age']
+    ages = recognized_faces.groupby('person_id')['age'].mean()
 
     # percentage of interested faces in frames
     interested_pc = (np.array(detected_faces[['frame', 'interest']].groupby('frame').sum()['interest'], dtype=float) /
                      np.array(detected_faces[['frame', 'interest']].groupby('frame').size()) * 100)
 
+    smoothed_interest = pd.ewma(interested_pc, alpha=0.1)
     frames_id = np.unique(detected_faces['frame'])
-    return men_pc, ages, frames_id, interested_pc
+    return men_pc, ages, frames_id, smoothed_interest
