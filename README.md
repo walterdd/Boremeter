@@ -21,6 +21,8 @@ With this app you can assess speaker’s skills or detect the most resonant part
 
 [People tracking example video](https://www.youtube.com/watch?v=LFJhAiqAA3c)
 
+[Abstract](https://docs.google.com/document/d/1xqY5WKOui-byVKT1uC5Uu3j2Fuhmbcdwd5jdvisBEZk/edit)
+
 ## Technical overview
 
 The boremeter pipeline includes four main components:
