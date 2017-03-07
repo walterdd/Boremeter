@@ -42,7 +42,7 @@ def draw_bboxes(img, df):
     return img
 
 
-def visualize(people_df, input_videofile, output_videofile, frames_limit, detection_step):
+def visualize(people_df, input_videofile, output_videofile, frames_limit):
     input_video = cv2.VideoCapture(input_videofile)
     ret, frame = input_video.read()
     cur_frame_num = 0
@@ -54,8 +54,7 @@ def visualize(people_df, input_videofile, output_videofile, frames_limit, detect
 
     while cur_frame_num < frames_limit:
         ret, frame = input_video.read()
-        last_detection_frame_num = detection_step * (cur_frame_num // detection_step)
-        df_slice = people_df[people_df['frame'] == last_detection_frame_num]
+        df_slice = people_df[people_df['frame'] == cur_frame_num]
         output_video.write(draw_bboxes(frame, df_slice))
         cur_frame_num += 1
 
