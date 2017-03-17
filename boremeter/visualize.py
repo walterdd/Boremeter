@@ -1,4 +1,5 @@
 import cv2
+from tqdm import tqdm
 
 from .bounding_boxes import BoundingBox
 
@@ -45,14 +46,13 @@ def draw_bboxes(img, df):
 def visualize(people_df, input_videofile, output_videofile, frames_limit):
     input_video = cv2.VideoCapture(input_videofile)
     ret, frame = input_video.read()
-    cur_frame_num = 0
 
     height, width = frame.shape[0], frame.shape[1]
     fourcc = cv2.VideoWriter_fourcc(*'XVID')
 
     output_video = cv2.VideoWriter(output_videofile, fourcc, 25, (width, height))
 
-    while cur_frame_num < frames_limit:
+    for cur_frame_num in tqdm(range(frames_limit)):
         ret, frame = input_video.read()
         df_slice = people_df[people_df['frame'] == cur_frame_num]
         output_video.write(draw_bboxes(frame, df_slice))
