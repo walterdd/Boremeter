@@ -37,10 +37,6 @@ class Tracker:
                 lost_faces.append(cur_id)
                 continue
             if len(self.tracking_points_by_id[cur_id]) == 0:
-                points_number = int(self.bboxes_by_id[cur_id].w / 2)
-                mean = self.bboxes_by_id[cur_id].center
-                cov = [[self.bboxes_by_id[cur_id].w / 3, 0], [0, self.bboxes_by_id[cur_id].h / 3]]
-                self.tracking_points_by_id[cur_id] = np.random.multivariate_normal(mean, cov, points_number)
                 continue
             starting_points = np.float32(self.tracking_points_by_id[cur_id]).reshape(-1, 2)
             ending_points, st, err = cv2.calcOpticalFlowPyrLK(
