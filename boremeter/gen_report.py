@@ -56,9 +56,9 @@ def main():
     caffe_models_path = os.environ.get('CAFFE_MODELS_PATH') or args.caffe_models_path
     
     if args.gpu:
-	caffe.set_mode_gpu()
+        caffe.set_mode_gpu()
     else:
-	caffe.set_mode_cpu()
+        caffe.set_mode_cpu()
 
     # create temporary directory in the current directory where cropped faces will be stored
     with temporary_directory() as tmp_dir:
@@ -93,7 +93,6 @@ def main():
                 input_videofile=args.file.name,
                 output_videofile=args.output_video.name,
                 frames_limit=args.frames_limit,
-                detection_step=DETECTION_STEP,
             )
 
 
