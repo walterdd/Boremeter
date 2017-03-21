@@ -27,28 +27,27 @@ class FaceRecognizer:
         del self.net
 
     def predict(self, x):
-        return self.net.predict([x], oversample=False)
+        return self.net.predict(x, oversample=False)
 
 
 class AgeRecognizer(FaceRecognizer):
     def predict(self, x):
-        return FaceRecognizer.predict(self, x)[0].argmax()
+        predictions = FaceRecognizer.predict(self, x)
+        return [p.argmax() for p in predictions]
 
 
 class GenderRecognizer(FaceRecognizer):
     def predict(self, x):
         genders = ['Female', 'Male']
-        return genders[FaceRecognizer.predict(self, x)[0].argmax()]
+        predictions = FaceRecognizer.predict(self, x)
+        return [genders[p.argmax()] for p in predictions]
 
 
 def make_image_name(frame_num, person_id):
-    return 'frame%dperson%d.jpg' % (frame_num, person_id)
+    return 'person%dframe%d.jpg' % (person_id, frame_num)
 
 
-def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, recognition_step):
-    # load pre-trained nets
-
-    age_recognizer = AgeRecognizer(caffe_models_path, 'age.caffemodel', 'age.prototxt')
+def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, recognition_step, batch_size=500):
 
     # read table of detected people
     # populate age, gender and interest with zeros for the moment
@@ -58,68 +57,7 @@ def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, re
     detected_faces.loc[:, 'gender'] = np.zeros(detected_faces.shape[0])
     detected_faces.loc[:, 'interest'] = np.zeros(detected_faces.shape[0])
 
-    ages = {}
-
-    # recognize age if frame_id % recognition_step == 0
-
-    for i, face_row in tqdm(detected_faces.iterrows(), total=detected_faces.shape[0]):
-        if face_row['frame'] > frames_limit:
-            break
-        if face_row['frame'] % recognition_step == 0:
-            im_name = make_image_name(face_row['frame'], face_row['person_id'])
-            full_file_name = os.path.join(tmp_dir, im_name)
-            input_image = caffe.io.load_image(full_file_name)
-
-            detected_faces.loc[i, 'age'] = age_recognizer.predict(input_image)
-
-            if face_row['person_id'] in ages:
-                ages[face_row['person_id']][0] += face_row['age']
-                ages[face_row['person_id']][1] += 1
-            else:
-                ages[face_row['person_id']] = [face_row['age'], 1]
-
-    del age_recognizer  # deleting net to clean the memory
-    gc.collect()
-
-    for i, face_row in detected_faces.iterrows():
-
-        try:
-            ages_sum, count = ages[face_row['person_id']]
-            detected_faces.loc[i, 'age'] = ages_sum / count
-
-        except KeyError:
-            detected_faces.loc[i, 'age'] = 25  # mean? median?
-
-    # recognize gender if frame_id % recognition_step == 0
-
-    gender_recognizer = GenderRecognizer(caffe_models_path, 'gender.caffemodel', 'gender.prototxt')
-    genders = {}
-
-    for i, face_row in tqdm(detected_faces.iterrows(), total=detected_faces.shape[0]):
-        if face_row['frame'] > frames_limit:
-            break
-        if face_row['frame'] % recognition_step == 0:
-            im_name = make_image_name(face_row['frame'], face_row['person_id'])
-            full_file_name = os.path.join(tmp_dir, im_name)
-            input_image = caffe.io.load_image(full_file_name)
-
-            face_row['gender'] = gender_recognizer.predict(input_image)
-            if face_row['person_id'] in genders:
-                genders[face_row['person_id']][0] += int(face_row['gender'] == 'Male')
-                genders[face_row['person_id']][1] += 1
-            else:
-                genders[face_row['person_id']] = [int(face_row['gender'] == 'Male'), 1]
-
-    del gender_recognizer  # deleting net to clean the memory
-    gc.collect()
-
-    for i, face_row in detected_faces.iterrows():
-
-        try:
-            detected_faces.loc[i, 'gender'] = 'Male' if (float(genders[face_row['person_id']][0]) /
-                                                         genders[face_row['person_id']][1]) > 0.5 else 'Female'
-        except KeyError:
-            detected_faces.loc[i, 'gender'] = 'Male'
+    # recognize interested faces
 
     face_detector = cv2.CascadeClassifier(DETECTOR_CONFIG['VJ_cascade_path'])
 
@@ -131,7 +69,71 @@ def recognize_faces(detected_faces, tmp_dir, frames_limit, caffe_models_path, re
         gray = cv2.cvtColor(im, cv2.COLOR_BGR2GRAY)
         detected_faces.loc[i, 'interest'] = len(face_detector.detectMultiScale(gray, 1.1, 1)) > 0
 
-    detected_faces = detected_faces.fillna(np.nan)
+    # recognize age if frame_id % recognition_step == 0 and only on interested faces
+
+    interested_faces = detected_faces[detected_faces['interest'] == 1]
+    interested_faces = interested_faces[interested_faces['frame'] % recognition_step == 0]
+
+    # load pre-trained nets
+    age_recognizer = AgeRecognizer(caffe_models_path, 'age.caffemodel', 'age.prototxt')
+    ages = {}
+
+    for _, batch in tqdm(interested_faces.groupby(np.arange(len(interested_faces)) / batch_size)):
+        images = []
+        for i, face_row in batch.iterrows():
+            im_name = make_image_name(face_row['frame'], face_row['person_id'])
+            full_file_name = os.path.join(tmp_dir, im_name)
+            input_image = caffe.io.load_image(full_file_name)
+            images.append(input_image)
+        batch.loc[:, 'age'] = age_recognizer.predict(images)
+        for i, face_row in batch.iterrows():
+            if face_row['person_id'] in ages:
+                ages[face_row['person_id']][0] += face_row['age']
+                ages[face_row['person_id']][1] += 1
+            else:
+                ages[face_row['person_id']] = [face_row['age'], 1]
+
+    del age_recognizer  # deleting net to clean the memory
+    gc.collect()
+
+    for i, face_row in detected_faces.iterrows():
+        try:
+            ages_sum, count = ages[face_row['person_id']]
+            detected_faces.loc[i, 'age'] = ages_sum / count
+
+        except KeyError:
+            detected_faces.loc[i, 'age'] = 25 # mean? median? maybe we should delete faces that appear on very few frames?
+
+    # recognize gender if frame_id % recognition_step == 0
+
+    gender_recognizer = GenderRecognizer(caffe_models_path, 'gender.caffemodel', 'gender.prototxt')
+    genders = {}
+
+    for _, batch in tqdm(interested_faces.groupby(np.arange(len(interested_faces)) / batch_size)):
+        images = []
+        for i, face_row in batch.iterrows():
+            im_name = make_image_name(face_row['frame'], face_row['person_id'])
+            full_file_name = os.path.join(tmp_dir, im_name)
+            input_image = caffe.io.load_image(full_file_name)
+            images.append(input_image)
+        batch.loc[:, 'gender'] = gender_recognizer.predict(images)
+        for i, face_row in batch.iterrows():
+            if face_row['person_id'] in genders:
+                genders[face_row['person_id']][0] += int(face_row['gender'] == 'Male')
+                genders[face_row['person_id']][1] += 1
+            else:
+                genders[face_row['person_id']] = [int(face_row['gender'] == 'Male'), 1]
+
+    del gender_recognizer  # deleting net to clean the memory
+    gc.collect()
+
+    for i, face_row in detected_faces.iterrows():
+        try:
+            detected_faces.loc[i, 'gender'] = 'Male' if (float(genders[face_row['person_id']][0]) /
+                                                         genders[face_row['person_id']][1]) > 0.5 else 'Female'
+        except KeyError:
+            detected_faces.loc[i, 'gender'] = 'Male' # median? maybe we should delete faces that appear on very few frames?
+
     return detected_faces
 
 
@@ -142,8 +144,8 @@ def get_stats(detected_faces):
 
     # percentage of interested faces in frames
     interested_pc = (np.array(detected_faces[['frame', 'interest']].groupby('frame').sum()['interest'], dtype=float) /
-                     np.array(detected_faces[['frame', 'interest']].groupby('frame').size()) * 100)
+                     np.median(pd.DataFrame(np.array(detected_faces.groupby('frame').size())))) * 100
 
-    smoothed_interest = pd.ewma(interested_pc, alpha=0.1)
+    smoothed_interest = pd.ewma(interested_pc, alpha=0.05)
     frames_id = np.unique(detected_faces['frame'])
     return men_pc, ages, frames_id, smoothed_interest

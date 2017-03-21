@@ -10,7 +10,7 @@ from .tracker import Tracker
 def crop_faces(img, frame_num, bboxes, tmp_dir):
     for person_id, bbox in bboxes.iteritems():
         bbox = bbox.resize(scale=3)
-        crop_file_path = os.path.join(tmp_dir, 'frame%dperson%d.jpg' % (frame_num, person_id))
+        crop_file_path = os.path.join(tmp_dir, 'person%dframe%d.jpg' % (person_id, frame_num))
         crop_img = img[bbox.top:bbox.bottom, bbox.left:bbox.right]
         cv2.imwrite(crop_file_path, crop_img)
 
