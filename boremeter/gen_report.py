@@ -93,7 +93,6 @@ def main():
                 input_videofile=args.file.name,
                 output_videofile=args.output_video.name,
                 frames_limit=args.frames_limit,
-                detection_step=DETECTION_STEP,
             )
 
 

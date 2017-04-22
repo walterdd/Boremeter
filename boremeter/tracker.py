@@ -5,7 +5,7 @@ import numpy as np
 
 
 class Tracker:
-    def __init__(self, timeout=400):
+    def __init__(self, timeout=100):
         self.timeout = timeout
         self.cur_frame_num = -1
         self.prev_frame = None
@@ -24,7 +24,7 @@ class Tracker:
 
     def read_frame(self, frame):
         self.prev_frame = self.cur_frame
-        self.cur_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        self.cur_frame = frame
         self.cur_frame_num += 1
 
     def track_faces(self):
@@ -37,22 +37,18 @@ class Tracker:
                 lost_faces.append(cur_id)
                 continue
             if len(self.tracking_points_by_id[cur_id]) == 0:
-                points_number = self.bboxes_by_id[cur_id].w / 2
-                mean = self.bboxes_by_id[cur_id].center
-                cov = [[self.bboxes_by_id[cur_id].w / 3, 0], [0, self.bboxes_by_id[cur_id].h / 3]]
-                self.tracking_points_by_id[cur_id] = np.random.multivariate_normal(mean, cov, points_number)
                 continue
             starting_points = np.float32(self.tracking_points_by_id[cur_id]).reshape(-1, 2)
             ending_points, st, err = cv2.calcOpticalFlowPyrLK(
-                self.prev_frame,
-                self.cur_frame,
+                cv2.cvtColor(self.prev_frame, cv2.COLOR_BGR2GRAY),
+                cv2.cvtColor(self.cur_frame, cv2.COLOR_BGR2GRAY),
                 starting_points,
                 None,
                 **self.lk_params
             )
             ending_points_reversed, st, err = cv2.calcOpticalFlowPyrLK(
-                self.cur_frame,
-                self.prev_frame,
+                cv2.cvtColor(self.cur_frame, cv2.COLOR_BGR2GRAY),
+                cv2.cvtColor(self.prev_frame, cv2.COLOR_BGR2GRAY),
                 ending_points,
                 None,
                 **self.lk_params
@@ -92,7 +88,7 @@ class Tracker:
             del self.last_detection_frame_by_id[lost_id]
 
     def match_faces(self):
-        detected_faces = detect_faces(self.cur_frame, grey_scale=True)
+        detected_faces = detect_faces(self.cur_frame, grey_scale=False)
         new_faces = {}
         for bbox in detected_faces:
             self.max_id += 1
@@ -115,7 +111,7 @@ class Tracker:
                 self.last_detection_frame_by_id[new_id] = self.cur_frame_num
                 ids_to_get_points.append(new_id)
         for new_id in ids_to_get_points:
-            points_number = self.bboxes_by_id[new_id].w / 2
+            points_number = int(self.bboxes_by_id[new_id].w / 2)
             mean = self.bboxes_by_id[new_id].center
             cov = [[self.bboxes_by_id[new_id].w / 3, 0], [0, self.bboxes_by_id[new_id].h / 3]]
             self.tracking_points_by_id[new_id] = np.random.multivariate_normal(mean, cov, points_number)
