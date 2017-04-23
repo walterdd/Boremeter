@@ -1,4 +1,3 @@
-
 import os
 import argparse
 
@@ -69,6 +68,7 @@ def main():
             frames_limit=args.frames_limit,
             tmp_dir=tmp_dir,
             detection_step=DETECTION_STEP,
+            caffe_models_path=caffe_models_path,
         )
 
         print ('Extracting statistics')

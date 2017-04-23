@@ -7,7 +7,7 @@ import cv2
 import caffe
 from tqdm import tqdm
 
-from .detector import DETECTOR_CONFIG
+from .tracker import DETECTOR_CONFIG
 
 
 class FaceRecognizer:
