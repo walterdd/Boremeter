@@ -29,23 +29,8 @@ def check_faces(bboxes):
     raise NotImplementedError()
 
 
-class Tracker:
-    def __init__(self, caffe_models_path, timeout=100, detection_method='mtcnn'):
-        self.timeout = timeout
-        self.cur_frame_num = -1
-        self.prev_frame = None
-        self.cur_frame = None
-        self.tracking_points_by_id = {}
-        self.bboxes_by_id = {}
-        self.last_detection_frame_by_id = {}
-        self.max_id = 0
-        self.lk_params = dict(winSize=(3, 3),
-                              maxLevel=0,
-                              criteria=(cv2.TERM_CRITERIA_EPS |
-                                        cv2.TERM_CRITERIA_COUNT,
-                                        10,
-                                        0.03)
-                              )
+class Detector:
+    def __init__(self, caffe_models_path, detection_method='mtcnn'):
         self.detection_method = detection_method
         if detection_method == 'mtcnn':
             self.PNet = caffe.Net(os.path.join(caffe_models_path, "det1.prototxt"),
@@ -55,13 +40,12 @@ class Tracker:
             self.ONet = caffe.Net(os.path.join(caffe_models_path, "det3.prototxt"),
                                   os.path.join(caffe_models_path, "det3.caffemodel"), caffe.TEST)
 
-        def __del__(self):
-            if self.detection_method == 'mtcnn':
-                del self.PNet
-                del self.RNet
-                del self.ONet
-                gc.collect()
-
+    def __del__(self):
+        if self.detection_method == 'mtcnn':
+            del self.PNet
+            del self.RNet
+            del self.ONet
+            gc.collect()
 
     def detect_faces(self, img, grey_scale=False):
         if self.detection_method == 'VJ':
@@ -87,6 +71,28 @@ class Tracker:
 
         else:
             raise RuntimeError('Detection method %s is not supported' % self.detection_method)
+
+
+
+class Tracker:
+    def __init__(self, detector, timeout=100):
+        self.timeout = timeout
+        self.detector = detector
+        self.cur_frame_num = -1
+        self.prev_frame = None
+        self.cur_frame = None
+        self.tracking_points_by_id = {}
+        self.bboxes_by_id = {}
+        self.last_detection_frame_by_id = {}
+        self.max_id = 0
+        self.lk_params = dict(winSize=(3, 3),
+                              maxLevel=0,
+                              criteria=(cv2.TERM_CRITERIA_EPS |
+                                        cv2.TERM_CRITERIA_COUNT,
+                                        10,
+                                        0.03)
+                              )
+
 
     def read_frame(self, frame):
         self.prev_frame = self.cur_frame
@@ -154,7 +160,7 @@ class Tracker:
             del self.last_detection_frame_by_id[lost_id]
 
     def match_faces(self):
-        detected_faces = self.detect_faces(self.cur_frame, grey_scale=False)
+        detected_faces = self.detector.detect_faces(self.cur_frame, grey_scale=False)
         new_faces = {}
         for bbox in detected_faces:
             self.max_id += 1

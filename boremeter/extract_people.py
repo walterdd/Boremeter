@@ -4,7 +4,7 @@ import pandas as pd
 import cv2
 from tqdm import tqdm
 
-from .tracker import Tracker
+from .tracker import Tracker, Detector
 
 def crop_faces(img, frame_num, bboxes, tmp_dir):
     for person_id, bbox in bboxes.iteritems():
@@ -18,7 +18,8 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step, caffe_
     faces_df = pd.DataFrame(columns=['frame', 'person_id', 'x', 'y', 'w', 'h'])
 
     input_video = cv2.VideoCapture(video_file_path)
-    tracker = Tracker(caffe_models_path=caffe_models_path, detection_method='mtcnn')
+    detector = Detector(caffe_models_path=caffe_models_path, detection_method='mtcnn')
+    tracker = Tracker(detector)
     for _ in tqdm(range(frames_limit)):
         has_more_frames, cur_frame = input_video.read()
         if not has_more_frames:
