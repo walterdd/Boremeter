@@ -1,4 +1,3 @@
-
 import os
 import argparse
 
@@ -10,8 +9,8 @@ from . import recognize_people
 from .visualize import visualize
 from .util import temporary_directory
 
-DETECTION_STEP = 3
-RECOGNITION_STEP = DETECTION_STEP * 6
+DETECTION_STEP = 5
+RECOGNITION_STEP = DETECTION_STEP * 2
 
 
 def gen_html(report_file, faces_df):
@@ -69,6 +68,7 @@ def main():
             frames_limit=args.frames_limit,
             tmp_dir=tmp_dir,
             detection_step=DETECTION_STEP,
+            caffe_models_path=caffe_models_path,
         )
 
         print ('Extracting statistics')

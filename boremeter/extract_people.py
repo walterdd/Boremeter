@@ -4,23 +4,22 @@ import pandas as pd
 import cv2
 from tqdm import tqdm
 
-from .tracker import Tracker
-
+from .tracker import Tracker, Detector
 
 def crop_faces(img, frame_num, bboxes, tmp_dir):
     for person_id, bbox in bboxes.iteritems():
         bbox = bbox.resize(scale=3)
-        crop_file_path = os.path.join(tmp_dir, 'frame%dperson%d.jpg' % (frame_num, person_id))
+        crop_file_path = os.path.join(tmp_dir, 'person%dframe%d.jpg' % (person_id, frame_num))
         crop_img = img[bbox.top:bbox.bottom, bbox.left:bbox.right]
         cv2.imwrite(crop_file_path, crop_img)
 
 
-def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
+def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step, caffe_models_path):
     faces_df = pd.DataFrame(columns=['frame', 'person_id', 'x', 'y', 'w', 'h'])
 
     input_video = cv2.VideoCapture(video_file_path)
-
-    tracker = Tracker()
+    detector = Detector(caffe_models_path=caffe_models_path, detection_method='mtcnn')
+    tracker = Tracker(detector)
     for _ in tqdm(range(frames_limit)):
         has_more_frames, cur_frame = input_video.read()
         if not has_more_frames:
@@ -43,4 +42,5 @@ def extract_faces(video_file_path, frames_limit, tmp_dir, detection_step):
                                         'w': face.w,
                                         'h': face.h},
                                        ignore_index=True,)
+    del tracker
     return faces_df

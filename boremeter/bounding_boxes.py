@@ -90,3 +90,14 @@ def pts_to_bb(pts):
     w = max(pts[0][0], pts[1][0], pts[2][0], pts[3][0]) - x
     h = max(pts[0][1], pts[1][1], pts[2][1], pts[3][1]) - y
     return BoundingBox(x, y, w, h)
+
+
+def convert_bbox(bbox):
+    """
+    Converts bbox from mtcnn format to a BoundingBox object.
+    """
+    x = bbox[0]
+    y = bbox[1]
+    right = bbox[2]
+    top = bbox[3]
+    return BoundingBox(x, y, right - x, top - y)
