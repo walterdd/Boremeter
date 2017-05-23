@@ -64,7 +64,7 @@ class Detector:
                                             DETECTOR_CONFIG['mtcnn_factor'],
                                             fastresize=False)
             bboxes = [convert_bbox(face) for face in detected]
-            return bboxes
+            return zip(bboxes, points)
 
         elif self.detection_method == 'dlib':
             raise NotImplementedError()
@@ -83,6 +83,7 @@ class Tracker:
         self.cur_frame = None
         self.tracking_points_by_id = {}
         self.bboxes_by_id = {}
+        self.landmarks_by_id = {}
         self.last_detection_frame_by_id = {}
         self.max_id = 0
         self.lk_params = dict(winSize=(3, 3),
@@ -160,17 +161,18 @@ class Tracker:
             del self.last_detection_frame_by_id[lost_id]
 
     def match_faces(self):
-        detected_faces = self.detector.detect_faces(self.cur_frame, grey_scale=False)
+        detected_result = self.detector.detect_faces(self.cur_frame, grey_scale=False)
         new_faces = {}
-        for bbox in detected_faces:
+        for (bbox, landmarks) in detected_result:
             self.max_id += 1
-            new_faces[self.max_id] = bbox
+            new_faces[self.max_id] = (bbox, landmarks)
         ids_to_get_points = []
-        for new_id, new_bbox in new_faces.iteritems():
+        for new_id, (new_bbox, new_landmarks) in new_faces.iteritems():
             face_untracked = True
             for old_id, old_bbox in self.bboxes_by_id.iteritems():
                 if bboxes_are_close(new_bbox, old_bbox):
                     self.bboxes_by_id[old_id] = new_bbox.resize(0.8)
+                    self.landmarks_by_id[old_id] = new_landmarks
                     self.last_detection_frame_by_id[old_id] = self.cur_frame_num
                     face_untracked = False
                     ids_to_get_points.append(old_id)
@@ -180,6 +182,7 @@ class Tracker:
                     break
             if face_untracked:
                 self.bboxes_by_id[new_id] = new_bbox.resize(0.8)
+                self.landmarks_by_id[new_id] = new_landmarks
                 self.last_detection_frame_by_id[new_id] = self.cur_frame_num
                 ids_to_get_points.append(new_id)
         for new_id in ids_to_get_points:

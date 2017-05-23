@@ -8,6 +8,7 @@ from . import extract_people
 from . import recognize_people
 from .visualize import visualize
 from .util import temporary_directory
+from .pose_estimator import estimate_poses
 
 DETECTION_STEP = 5
 RECOGNITION_STEP = DETECTION_STEP * 2
@@ -63,7 +64,7 @@ def main():
     with temporary_directory() as tmp_dir:
 
         print ('Extracting people')
-        extracted_faces = extract_people.extract_faces(
+        extracted_faces, frame_shape = extract_people.extract_faces(
             args.file.name,
             frames_limit=args.frames_limit,
             tmp_dir=tmp_dir,
@@ -72,8 +73,11 @@ def main():
         )
 
         print ('Extracting statistics')
+        print ('Pose estimation')
+        detected_faces = estimate_poses(extracted_faces, frame_shape, detection_step=DETECTION_STEP)
+        print ('Age, gender & attention recognition')
         recognized_faces_df = recognize_people.recognize_faces(
-            detected_faces=extracted_faces,
+            detected_faces=detected_faces,
             tmp_dir=tmp_dir,
             frames_limit=args.frames_limit,
             caffe_models_path=caffe_models_path,
